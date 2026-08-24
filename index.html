@@ -1,522 +1,811 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HR Dashboard 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Sarabun',sans-serif;background:#F1F5F9;color:#1E293B}
-.page{display:none}.page.active{display:block}
-nav{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1);position:sticky;top:0;z-index:100;display:flex;align-items:center;overflow-x:auto;padding:0 20px}
-.logo{font-size:14px;font-weight:700;padding:12px 16px 12px 0;border-right:1px solid #E2E8F0;white-space:nowrap;margin-right:4px;flex-shrink:0}
-.tb{padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#64748B;border-bottom:3px solid transparent;white-space:nowrap}
-.tb.on{color:#2563EB;border-bottom-color:#2563EB}
-.up{margin-left:auto;flex-shrink:0;font-size:11px;color:#94A3B8;padding-left:12px;white-space:nowrap;cursor:pointer}
-.wrap{max-width:1400px;margin:0 auto;padding:20px}
-.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
-.kpi{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.kn{font-size:1.8rem;font-weight:700;line-height:1.1;margin-top:4px}
-.ks{font-size:11px;color:#94A3B8}
-.card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.ct{font-size:14px;font-weight:700;color:#334155;margin-bottom:2px}
-.cs{font-size:11px;color:#94A3B8;margin-bottom:10px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.tbl{overflow:hidden;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);background:#fff}
-.th2{padding:12px 18px;border-bottom:1px solid #E2E8F0;background:#F8FAFC}
-.tr2{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:#F8FAFC;color:#64748B;font-size:11px;font-weight:700;text-transform:uppercase;padding:10px 12px;border-bottom:1.5px solid #E2E8F0;text-align:left;white-space:nowrap;position:sticky;top:0;z-index:2}
-td{padding:9px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle}
-tr:hover td{background:#F8FAFC}
-.bx{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.bg{background:#DCFCE7;color:#15803D}.br{background:#FEE2E2;color:#B91C1C}
-.bo{background:#FEF3C7;color:#B45309}.bb{background:#DBEAFE;color:#1D4ED8}
-.bgr{background:#F1F5F9;color:#475569}.bbl{background:#1E293B;color:#F8FAFC}
-.fa{background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:9px 14px;font-size:12px;color:#9A3412;display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.fa.h{display:none}
-.cb{background:#fff;border:1px solid #FED7AA;color:#9A3412;padding:3px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700}
-input.sb{border:1px solid #E2E8F0;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;max-width:280px;width:100%;font-family:'Sarabun',sans-serif}
-input.sb:focus{border-color:#2563EB}
-.fr{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-select.fs{border:1px solid #E2E8F0;border-radius:8px;padding:7px 10px;font-size:12px;background:#fff;cursor:pointer;outline:none;font-family:'Sarabun',sans-serif}
-.scr{overflow-x:auto;max-height:480px;overflow-y:auto}
-.ov{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px}
-.sp{width:44px;height:44px;border:4px solid #DBEAFE;border-top-color:#2563EB;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ov-txt{color:#fff;font-size:14px;font-weight:600}
-.ov-err{color:#FCA5A5;font-size:13px;margin-top:4px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบประเมิน KPI พนักงาน - Performance Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Sarabun', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+  </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+<div id="app" class="max-w-[98rem] mx-auto p-4 md:p-6 space-y-6">
 
-<!-- Loading overlay -->
-<div class="ov" id="ov">
-  <div class="sp"></div>
-  <div class="ov-txt" id="ov-txt">กำลังโหลดข้อมูลจาก Google Sheets…</div>
-  <div class="ov-err" id="ov-err"></div>
-  <button id="ov-retry" onclick="loadAll()" style="display:none;margin-top:8px;padding:8px 20px;background:#2563EB;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px">ลองใหม่</button>
-</div>
-
-<nav>
-  <div class="logo">🏢 HR Dashboard 2026</div>
-  <button class="tb on" onclick="SP(0)">👥 พนักงานปัจจุบัน</button>
-  <button class="tb" onclick="SP(1)">📋 สรรหา 2026</button>
-  <button class="tb" onclick="SP(2)">🚪 ลาออก 2026</button>
-  <button class="tb" onclick="SP(3)">🔄 โยกย้าย 2026</button>
-  <div class="up" onclick="loadAll()" title="รีเฟรชข้อมูล">📅 <span id="ts">— 🔄 รีเฟรช</span></div>
-</nav>
-
-<!-- PAGE 0: พนักงานปัจจุบัน -->
-<div class="page active" id="p0"><div class="wrap">
-<div class="krow">
-  <div class="kpi" style="border-left:4px solid #2563EB"><div style="font-size:12px;color:#64748B;font-weight:600">พนักงานทั้งหมด</div><div class="kn" id="a-k-total">—</div><div class="ks">คน</div></div>
-  <div class="kpi" style="border-left:4px solid #2563EB;cursor:pointer" onclick="AF('gender','ชาย','ชาย')"><div style="font-size:12px;color:#64748B;font-weight:600">ชาย</div><div class="kn" style="color:#2563EB" id="a-k-m">—</div><div class="ks">คลิกเพื่อกรอง</div></div>
-  <div class="kpi" style="border-left:4px solid #EC4899;cursor:pointer" onclick="AF('gender','หญิง','หญิง')"><div style="font-size:12px;color:#64748B;font-weight:600">หญิง</div><div class="kn" style="color:#EC4899" id="a-k-f">—</div><div class="ks">คลิกเพื่อกรอง</div></div>
-</div>
-<div class="g2">
-  <div class="card"><div class="ct">ช่องทางสรรหา</div><div class="cs">👆 คลิกเพื่อกรองตาราง</div><div id="a-ch" style="overflow:visible"></div></div>
-  <div class="card"><div class="ct">จำนวนพนักงานรายแผนก</div><div class="cs">👆 คลิกแท่งเพื่อกรองตาราง</div><div id="a-dp" style="overflow:visible;min-height:300px"></div></div>
-</div>
-<div class="tbl">
-  <div class="th2">
-    <div class="tr2">
-      <div><b style="font-size:14px">ข้อมูลพนักงานปัจจุบัน</b><div style="font-size:11px;color:#64748B">กำลังแสดง: <span id="a-d" style="color:#2563EB;font-weight:600">—</span></div></div>
-      <input class="sb" id="a-s" placeholder="ค้นหาชื่อ แผนก รหัส..." oninput="AR()">
+  <!-- TOP HEADER & ROLE SWITCHER -->
+  <header class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="flex items-center gap-3">
+      <span class="p-2.5 bg-blue-600 text-white rounded-xl font-bold text-xl shadow-sm">HRMS</span>
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">ระบบบริหารงานบุคคล & ประเมินผลการปฏิบัติงาน KPI</h1>
+        <p class="text-xs text-slate-500">ระบบประเมินผลงานและคุณภาพ</p>
+      </div>
     </div>
-    <div id="a-fa" class="fa h">🔍 <strong id="a-fl"></strong><button class="cb" onclick="AC()">✕ ล้าง</button></div>
-    <div class="fr">
-      <select class="fs" id="a-f1" onchange="AR()"><option value="">สังกัด: ทั้งหมด</option></select>
-      <select class="fs" id="a-f2" onchange="AR()"><option value="">แผนก: ทั้งหมด</option></select>
-      <select class="fs" id="a-f3" onchange="AR()"><option value="">เพศ: ทั้งหมด</option><option value="ชาย">ชาย</option><option value="หญิง">หญิง</option></select>
+    
+    <div class="flex flex-wrap items-center gap-2">
+      <button @click="fetchEmployees" class="px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 mr-2">
+        <span :class="{'animate-spin': isSyncing}">🔄</span> {{ isSyncing ? 'กำลังซิงค์...' : 'รีเฟรช Google Sheets' }}
+      </button>
+      <button @click="switchView('overview')" :class="currentView === 'overview' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
+        📈 ภาพรวมองค์กร
+      </button>
+      <button @click="switchView('database')" :class="currentView === 'database' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
+        👥 ฐานข้อมูลพนักงาน ({{ employeeList.length }})
+      </button>
+      <button @click="switchView('admin')" :class="currentView === 'admin' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
+        🛡️ Admin (HR ตั้งค่าเกณฑ์ KPI)
+      </button>
+      <button @click="switchView('evaluator')" :class="currentView === 'evaluator' ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
+        📝 แบบประเมิน (หัวหน้างาน)
+      </button>
+      <button @click="switchView('report')" :class="currentView === 'report' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
+        📊 หน้ารายงานผล
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       VIEW 1: OVERVIEW DASHBOARD
+       ========================================== -->
+  <main v-if="currentView === 'overview'" class="space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">พนักงานทั้งหมด</p>
+          <p class="text-3xl font-bold text-slate-800 mt-1">{{ employeeList.length }} <span class="text-sm font-normal text-slate-500">คน</span></p>
+          <span class="text-[11px] text-emerald-600 font-medium">● เชื่อมต่อระบบชีตเรียบร้อย</span>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold">👥</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ประเมินผลสำเร็จ</p>
+          <p class="text-3xl font-bold text-indigo-600 mt-1">{{ evaluatedCount }} <span class="text-sm font-normal text-slate-500">/ {{ employeeList.length }} คน</span></p>
+          <span class="text-[11px] text-indigo-500 font-medium">ความคืบหน้า {{ evalProgressPercent }}%</span>
+        </div>
+        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl font-bold">🎯</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">คะแนนเฉลี่ยองค์กร</p>
+          <p class="text-3xl font-bold text-emerald-600 mt-1">{{ avgOrgScore }}%</p>
+          <span class="text-[11px] text-emerald-600 font-medium">ระดับผลงานเฉลี่ย Grade B+</span>
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold">📊</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">รอเข้ารับการประเมิน</p>
+          <p class="text-3xl font-bold text-amber-500 mt-1">{{ pendingEvalCount }} <span class="text-sm font-normal text-slate-500">คน</span></p>
+          <span class="text-[11px] text-amber-600 font-medium">รอบประเมินปี 2026 / Q3</span>
+        </div>
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl font-bold">⏳</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-sm text-slate-800 border-b pb-3">📊 สัดส่วนเกรดผลงาน (Grade Distribution)</h3>
+        <div class="h-56 relative flex items-center justify-center">
+          <canvas id="gradeChart"></canvas>
+        </div>
+      </div>
+      <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 class="font-bold text-sm text-slate-800">🏢 ประสิทธิภาพ KPI เฉลี่ยรายแผนก (% Performance)</h3>
+          <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-medium">ปี 2026</span>
+        </div>
+        <div class="h-56 relative">
+          <canvas id="deptChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       VIEW 2: EMPLOYEE DATABASE
+       ========================================== -->
+  <main v-if="currentView === 'database'" class="space-y-6">
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+      <div class="flex flex-col md:flex-row justify-between md:items-center border-b pb-4 gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">👥 ทะเบียนประวัติพนักงานทั้งหมด</h2>
+          <p class="text-xs text-slate-500">ข้อมูลเชื่อมต่อ Google Sheets แบบ Real-time ({{ filteredEmployees.length }} รายการ)</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">แผนก</label>
+            <select v-model="filterDepartment" class="w-full p-2.5 border rounded-lg bg-white">
+              <option value="">ทั้งหมด</option>
+              <option v-for="d in departmentList" :key="d" :value="d">{{ d }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">สถานะ</label>
+            <select v-model="filterStatus" class="w-full p-2.5 border rounded-lg bg-white">
+              <option value="">ทั้งหมด</option>
+              <option value="ทำงานอยู่">ทำงานอยู่</option>
+              <option value="ลาออก">ลาออก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">ค้นหา</label>
+            <input type="text" v-model="empSearchQuery" placeholder="ชื่อหรือรหัสพนักงาน..." class="w-full p-2.5 border rounded-lg bg-white">
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
+        <table class="w-full text-left text-xs whitespace-nowrap">
+          <thead class="bg-slate-100 text-slate-700 border-b font-semibold">
+            <tr>
+              <th class="p-3 text-center w-12">ลำดับ</th>
+              <th class="p-3">รหัสพนักงาน</th>
+              <th class="p-3">ชื่อ-นามสกุล (ไทย)</th>
+              <th class="p-3">ชื่อเล่น</th>
+              <th class="p-3">ตำแหน่ง / เลเวล</th>
+              <th class="p-3">แผนก / หน่วยงาน</th>
+              <th class="p-3">สถานะ</th>
+              <th class="p-3">เบอร์โทรศัพท์</th>
+              <th class="p-3 text-center sticky right-0 bg-slate-100 shadow-sm">การดำเนินการ</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="(emp, idx) in filteredEmployees" :key="emp.empId" class="hover:bg-slate-50/80">
+              <td class="p-3 text-center text-slate-400 font-bold">{{ idx + 1 }}</td>
+              <td class="p-3 font-mono font-bold text-indigo-700">{{ emp.empId }}</td>
+              <td class="p-3 font-semibold text-slate-800">{{ emp.empNameTh }}</td>
+              <td class="p-3 text-slate-600">{{ emp.nicknameTh || '-' }}</td>
+              <td class="p-3 text-slate-700">{{ emp.position }} <span v-if="emp.level" class="ml-1 px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded text-[10px]">{{ emp.level }}</span></td>
+              <td class="p-3 text-slate-600">{{ emp.department }}</td>
+              <td class="p-3"><span :class="emp.workStatus === 'ลาออก' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'" class="px-2 py-0.5 rounded-full text-[10px] font-bold">{{ emp.workStatus }}</span></td>
+              <td class="p-3 text-slate-600 font-mono">{{ emp.phone || '-' }}</td>
+              <td class="p-3 text-center space-x-1 sticky right-0 bg-white shadow-sm">
+                <button @click="viewFullProfile(emp)" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 px-2.5 py-1 rounded text-[11px] font-semibold">
+                  👁️ ดูประวัติ
+                </button>
+                <button @click="selectEmployeeForEvaluation(emp)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded text-[11px] font-semibold">
+                  ⚙️ ตั้งค่า KPI
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       VIEW 3: HR ADMIN (ระบบจัดการและตั้งค่า KPI)
+       ========================================== -->
+  <main v-if="currentView === 'admin'" class="space-y-6">
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+      
+      <!-- Action Bar -->
+      <div class="flex flex-col md:flex-row justify-between md:items-center border-b pb-4 gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            ⚙️ HR Admin: สร้างและตั้งค่าเกณฑ์การประเมิน KPI
+          </h2>
+          <p class="text-xs text-slate-500">เลือกพนักงานจากฐานข้อมูล กำหนดเกณฑ์ตัวชี้วัด และสร้างลิงก์ส่งให้ผู้ประเมิน</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button @click="switchView('database')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg border font-medium flex items-center gap-1">
+            👥 เลือกจากฐานข้อมูลพนักงาน
+          </button>
+          <button @click="generateEvaluationLink" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm flex items-center gap-1.5 transition">
+            🔗 บันทึก & สร้างลิงก์ประเมิน
+          </button>
+        </div>
+      </div>
+
+      <!-- Employee Info Inputs -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">รหัสพนักงาน</label>
+          <input type="text" v-model="adminData.empId" class="w-full p-2 border rounded-lg bg-white">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ชื่อ-สกุล (ผู้ถูกประเมิน)</label>
+          <input type="text" v-model="adminData.empName" class="w-full p-2 border rounded-lg bg-white">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ตำแหน่ง</label>
+          <input type="text" v-model="adminData.position" class="w-full p-2 border rounded-lg bg-white">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">แผนก</label>
+          <input type="text" v-model="adminData.department" class="w-full p-2 border rounded-lg bg-white">
+        </div>
+      </div>
+
+      <!-- KPI Assignments Settings Table -->
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-slate-800 text-sm">กำหนดรายการการมอบหมายงาน & ตัวชี้วัด KPI (Master Settings)</h3>
+          <button @click="addKpiRow" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-3.5 py-1.5 rounded-lg hover:bg-blue-100 font-semibold flex items-center gap-1">
+            + เพิ่มหัวข้อ KPI
+          </button>
+        </div>
+
+        <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 border-b font-semibold">
+              <tr>
+                <th class="p-3 w-12 text-center">ลำดับ</th>
+                <th class="p-3 w-48">งานที่รับผิดชอบ</th>
+                <th class="p-3 w-40">เป้าหมาย</th>
+                <th class="p-3 w-40">ตัวชี้วัด</th>
+                <th class="p-3">เกณฑ์การประเมิน (Criteria)</th>
+                <th class="p-3 w-24 text-center">คะแนนเต็ม</th>
+                <th class="p-3 w-16 text-center">ลบ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="(kpi, idx) in adminData.kpis" :key="idx" class="hover:bg-slate-50">
+                <td class="p-3 text-center font-bold text-slate-400 align-top pt-4">{{ idx + 1 }}</td>
+                <td class="p-2.5 align-top"><textarea v-model="kpi.task" rows="3" class="w-full p-2 border rounded text-xs bg-white"></textarea></td>
+                <td class="p-2.5 align-top"><textarea v-model="kpi.target" rows="3" class="w-full p-2 border rounded text-xs bg-white"></textarea></td>
+                <td class="p-2.5 align-top"><textarea v-model="kpi.indicator" rows="3" class="w-full p-2 border rounded text-xs bg-white"></textarea></td>
+                <td class="p-2.5 align-top"><textarea v-model="kpi.criteria" rows="5" class="w-full p-2 border rounded text-xs leading-relaxed bg-white"></textarea></td>
+                <td class="p-2.5 text-center align-top pt-3">
+                  <input type="number" v-model.number="kpi.maxScore" class="w-16 p-2 border rounded text-center text-xs font-bold bg-white">
+                </td>
+                <td class="p-2.5 text-center align-top pt-4">
+                  <button @click="removeKpiRow(idx)" class="text-rose-500 hover:text-rose-700 font-bold text-sm" title="ลบหัวข้อนี้">✕</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       VIEW 4: EVALUATOR FORM (หน้าสำหรับผู้บังคับบัญชา)
+       ========================================== -->
+  <main v-if="currentView === 'evaluator'" class="space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-4 gap-2">
+        <div>
+          <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded font-bold">[{{ adminData.empId }}]</span>
+          <h2 class="text-xl font-bold text-slate-800 mt-1">ประเมิน [{{ adminData.empId }}] - {{ adminData.empName }}</h2>
+        </div>
+        <div class="text-xs text-slate-500 text-right">
+          <p><span class="font-semibold">วันที่ปัจจุบัน:</span> {{ currentDate }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+        <div>
+          <p class="text-slate-400 font-medium">ชื่อ-สกุล (ผู้ถูกประเมิน)</p>
+          <p class="font-semibold text-slate-800 text-sm mt-0.5">{{ adminData.empName }}</p>
+        </div>
+        <div>
+          <p class="text-slate-400 font-medium">ตำแหน่ง</p>
+          <p class="font-semibold text-slate-800 text-sm mt-0.5">{{ adminData.position }}</p>
+        </div>
+        <div>
+          <p class="text-slate-400 font-medium">แผนก</p>
+          <p class="font-semibold text-slate-800 text-sm mt-0.5">{{ adminData.department }}</p>
+        </div>
+        <div>
+          <p class="text-slate-400 font-medium">ผู้ประเมิน</p>
+          <input type="text" v-model="evaluatorName" class="w-full p-1.5 border rounded text-xs bg-slate-50" placeholder="ระบุชื่อผู้ประเมิน">
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Score Banner -->
+    <div class="sticky top-4 z-40 bg-slate-900 text-white rounded-xl p-4 shadow-lg flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center gap-6">
+        <div>
+          <span class="text-[11px] text-slate-400 block uppercase">คะแนนเต็ม</span>
+          <span class="text-lg font-bold text-slate-200">{{ maxPossibleScore }}</span>
+        </div>
+        <div class="border-l border-slate-700 pl-6">
+          <span class="text-[11px] text-slate-400 block uppercase">ได้คะแนน</span>
+          <span class="text-2xl font-bold text-blue-400">{{ totalEarnedScore }}</span>
+        </div>
+        <div class="border-l border-slate-700 pl-6">
+          <span class="text-[11px] text-slate-400 block uppercase">คิดเป็น %</span>
+          <span class="text-2xl font-bold text-emerald-400">{{ calculatedPercentage }}%</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-400">เกรดที่ได้:</span>
+        <span class="px-3.5 py-1 rounded-lg text-lg font-bold" :class="gradeBadgeClass">Grade {{ calculatedGrade }}</span>
+      </div>
+    </div>
+
+    <!-- Live Evaluation Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+        <h3 class="font-bold text-sm text-slate-800">การมอบหมายงานและเกณฑ์การประเมิน</h3>
+        <span class="text-xs text-slate-500">กรอกคะแนนตามผลการปฏิบัติงานจริง</span>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-100 text-slate-600 border-b font-semibold">
+            <tr>
+              <th class="p-3 text-center w-12">ลำดับ</th>
+              <th class="p-3 w-48">งานที่รับผิดชอบ</th>
+              <th class="p-3 w-40">เป้าหมาย</th>
+              <th class="p-3 w-36">ตัวชี้วัด</th>
+              <th class="p-3">เกณฑ์การประเมิน</th>
+              <th class="p-3 text-center w-28">คะแนนที่ได้</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="(kpi, idx) in adminData.kpis" :key="idx" class="hover:bg-slate-50/80">
+              <td class="p-3 text-center font-bold text-slate-400 align-top pt-4">{{ idx + 1 }}</td>
+              <td class="p-3 font-semibold text-slate-800 align-top leading-relaxed">{{ kpi.task }}</td>
+              <td class="p-3 text-slate-600 align-top leading-relaxed">{{ kpi.target }}</td>
+              <td class="p-3 text-slate-500 align-top leading-relaxed">{{ kpi.indicator }}</td>
+              <td class="p-3 text-slate-600 leading-relaxed align-top">
+                <div class="bg-slate-50 p-2.5 rounded border border-slate-100 whitespace-pre-line text-[11px]">{{ kpi.criteria }}</div>
+              </td>
+              <td class="p-3 text-center align-top pt-3">
+                <input type="number" min="0" :max="kpi.maxScore" v-model.number="kpi.score"
+                  class="w-20 p-2 border rounded-lg text-center font-bold text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  :class="kpi.score > kpi.maxScore ? 'border-rose-500 bg-rose-50' : 'border-slate-300 bg-white'">
+                <span class="block text-[10px] text-slate-400 mt-1">เต็ม {{ kpi.maxScore }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-4 border-t bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+        <textarea v-model="evaluatorFeedback" placeholder="ความคิดเห็นเพิ่มเติมของผู้ประเมิน..." class="w-full md:w-2/3 p-2 border rounded-lg text-xs"></textarea>
+        <button @click="submitEvaluationToReport" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs shadow-md transition">
+          ✅ ยืนยันผลการประเมิน (ส่งข้อมูลเข้ารายงาน)
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       VIEW 5: REPORT
+       ========================================== -->
+  <main v-if="currentView === 'report'" class="space-y-6">
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">📊 หน้ารายงานผลการประเมิน KPI รายบุคคล (แบบละเอียด)</h2>
+        <p class="text-xs text-slate-500">ผลคะแนนเชื่อมต่อพร้อมนำเสนอผู้บริหาร</p>
+      </div>
+      <button @click="copyLineSummary" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm flex items-center gap-1">
+        📲 สรุปส่ง LINE ผู้บริหาร
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-xs text-slate-400">ผู้ถูกประเมิน</p><p class="text-lg font-bold text-slate-800">{{ adminData.empName }} ({{ adminData.empId }})</p></div>
+      <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-xs text-slate-400">คะแนนรวมที่ได้</p><p class="text-2xl font-bold text-blue-600">{{ totalEarnedScore }} / {{ maxPossibleScore }} ({{ calculatedPercentage }}%)</p></div>
+      <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-xs text-slate-400">เกรดผลงาน</p><p class="text-2xl font-bold text-emerald-600">Grade {{ calculatedGrade }}</p></div>
+    </div>
+  </main>
+
+  <!-- MODAL: แชร์ลิงก์สำหรับผู้ประเมิน -->
+  <div v-if="showLinkModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-xl">
+      <h3 class="font-bold text-slate-800 text-base">🔗 ลิงก์สำหรับผู้บังคับบัญชาเข้าประเมิน</h3>
+      <p class="text-xs text-slate-500">คัดลอกลิงก์นี้ส่งทาง LINE หรือ Email เพื่อให้ผู้บังคับบัญชาเปิดประเมินได้ทันที:</p>
+      <input type="text" readonly :value="generatedLinkUrl" class="w-full p-2.5 border rounded-lg bg-slate-50 text-xs font-mono select-all">
+      <div class="flex justify-end gap-2">
+        <button @click="showLinkModal = false" class="px-4 py-2 border rounded-lg text-xs">ปิด</button>
+        <button @click="copyLinkText" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">📋 คัดลอกลิงก์</button>
+      </div>
     </div>
   </div>
-  <div class="scr"><table><thead><tr><th>#</th><th>รหัส</th><th>สังกัด</th><th>แผนก</th><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>Lv</th><th>เพศ</th><th>วันเริ่มงาน</th><th>อายุงาน</th><th>สถานะ</th></tr></thead><tbody id="a-tb"></tbody></table></div>
-</div>
-</div></div>
 
-<!-- PAGE 1: สรรหา -->
-<div class="page" id="p1"><div class="wrap">
-<div style="background:#1D4ED8;border-radius:12px;padding:14px 18px;color:#fff;margin-bottom:16px">
-  <div style="font-size:16px;font-weight:700">Dashboard สรุปผลงานการสรรหา ปี 2026</div>
-  <div style="font-size:12px;opacity:.8">มกราคม — ธันวาคม 2569</div>
-</div>
-<div class="krow">
-  <div class="kpi" style="border-left:4px solid #2563EB"><div style="font-size:12px;color:#64748B;font-weight:600">รับเข้าทั้งหมด</div><div class="kn" style="color:#2563EB" id="h-k-total">—</div><div class="ks">คน</div></div>
-  <div class="kpi" style="border-left:4px solid #10B981;cursor:pointer" onclick="HF('status','ทำงาน','ยังทำงาน')"><div style="font-size:12px;color:#64748B;font-weight:600">ยังทำงาน</div><div class="kn" style="color:#10B981" id="h-k-work">—</div><div class="ks">คลิกกรอง</div></div>
-  <div class="kpi" style="border-left:4px solid #EF4444;cursor:pointer" onclick="HF('status','ลาออก','ลาออกแล้ว')"><div style="font-size:12px;color:#64748B;font-weight:600">ลาออกแล้ว</div><div class="kn" style="color:#EF4444" id="h-k-resign">—</div><div class="ks">คลิกกรอง</div></div>
-  <div class="kpi" style="border-left:4px solid #8B5CF6"><div style="font-size:12px;color:#64748B;font-weight:600">Retention</div><div class="kn" style="color:#8B5CF6" id="h-k-ret">—</div><div class="ks">&nbsp;</div></div>
-  <div class="kpi" style="border-left:4px solid #2563EB"><div style="font-size:12px;color:#64748B;font-weight:600">ชาย</div><div class="kn" style="color:#2563EB" id="h-k-m">—</div><div class="ks">คน</div></div>
-  <div class="kpi" style="border-left:4px solid #EC4899"><div style="font-size:12px;color:#64748B;font-weight:600">หญิง</div><div class="kn" style="color:#EC4899" id="h-k-f">—</div><div class="ks">คน</div></div>
-</div>
-<div class="g2">
-  <div class="card"><div class="ct">รับเข้า vs ลาออก รายเดือน</div><div class="cs">👆 คลิกแท่งเพื่อกรอง</div><div id="h-mn" style="overflow:visible;min-height:220px"></div></div>
-  <div class="card"><div class="ct">สรรหารายแผนก</div><div class="cs">👆 คลิกแท่งเพื่อกรอง</div><div id="h-dp" style="overflow:visible;min-height:220px"></div></div>
-</div>
-<div class="g2">
-  <div class="card"><div class="ct">ช่องทางสรรหา</div><div class="cs">👆 คลิกเพื่อกรอง</div><div id="h-ch" style="overflow:visible;min-height:200px"></div></div>
-  <div class="card"><div class="ct">สังกัด</div><div class="cs">👆 คลิกเพื่อกรอง</div><div id="h-af" style="overflow:visible;min-height:200px"></div></div>
-</div>
-<div class="tbl">
-  <div class="th2">
-    <div class="tr2">
-      <div><b style="font-size:14px">รายชื่อพนักงานใหม่</b><div style="font-size:11px;color:#64748B">กำลังแสดง: <span id="h-d" style="color:#2563EB;font-weight:600">—</span></div></div>
-      <input class="sb" id="h-s" placeholder="ค้นหาชื่อ แผนก..." oninput="HR()">
-    </div>
-    <div id="h-fa" class="fa h">🔍 <strong id="h-fl"></strong><button class="cb" onclick="HC()">✕ ล้าง</button></div>
-    <div class="fr">
-      <select class="fs" id="h-f1" onchange="HR()"><option value="">สังกัด: ทั้งหมด</option></select>
-      <select class="fs" id="h-f2" onchange="HR()"><option value="">แผนก: ทั้งหมด</option></select>
-      <select class="fs" id="h-f3" onchange="HR()"><option value="">เดือน: ทั้งหมด</option></select>
-      <select class="fs" id="h-f4" onchange="HR()"><option value="">สถานะ: ทั้งหมด</option><option value="ทำงาน">ทำงาน</option><option value="ลาออก">ลาออก</option></select>
+  <!-- VIEW FULL PROFILE MODAL (35 Fields) -->
+  <div v-if="showProfileModal && selectedEmpProfile" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl">
+      <div class="flex justify-between items-start border-b pb-4">
+        <div>
+          <span class="px-2.5 py-1 bg-purple-100 text-purple-800 rounded-md font-mono text-xs font-bold">{{ selectedEmpProfile.empId }}</span>
+          <h3 class="text-xl font-bold text-slate-800 mt-1">{{ selectedEmpProfile.empNameTh }} ({{ selectedEmpProfile.nicknameTh }})</h3>
+          <p class="text-xs text-slate-500">{{ selectedEmpProfile.empNameEn }}</p>
+        </div>
+        <button @click="showProfileModal = false" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">✕</button>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-xs text-indigo-700 uppercase tracking-wider mb-2 border-l-4 border-indigo-600 pl-2">1. ข้อมูลการทำงานและตำแหน่ง</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div><span class="text-slate-400 block">ตำแหน่ง:</span><span class="font-semibold">{{ selectedEmpProfile.position }}</span></div>
+          <div><span class="text-slate-400 block">เลเวล (Level):</span><span class="font-semibold">{{ selectedEmpProfile.level || '-' }}</span></div>
+          <div><span class="text-slate-400 block">แผนก / หน่วยงาน:</span><span class="font-semibold">{{ selectedEmpProfile.department }}</span></div>
+          <div><span class="text-slate-400 block">ประเภทพนักงาน:</span><span class="font-semibold">{{ selectedEmpProfile.employmentType }}</span></div>
+          <div><span class="text-slate-400 block">สถานะการทำงาน:</span><span class="font-semibold text-emerald-600">{{ selectedEmpProfile.workStatus }}</span></div>
+          <div><span class="text-slate-400 block">วันที่เริ่มงาน:</span><span class="font-semibold">{{ selectedEmpProfile.startDate }}</span></div>
+          <div><span class="text-slate-400 block">อายุงาน:</span><span class="font-semibold">{{ selectedEmpProfile.tenure || '-' }}</span></div>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-xs text-indigo-700 uppercase tracking-wider mb-2 border-l-4 border-indigo-600 pl-2">2. ข้อมูลส่วนบุคคลและหลักฐานราชการ</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div><span class="text-slate-400 block">เพศ:</span><span class="font-semibold">{{ selectedEmpProfile.gender }}</span></div>
+          <div><span class="text-slate-400 block">วันเดือนปีเกิด:</span><span class="font-semibold">{{ selectedEmpProfile.birthDate }}</span></div>
+          <div><span class="text-slate-400 block">อายุ:</span><span class="font-semibold">{{ selectedEmpProfile.age }} ปี</span></div>
+          <div><span class="text-slate-400 block">กรุ๊ปเลือด:</span><span class="font-semibold">{{ selectedEmpProfile.bloodGroup || '-' }}</span></div>
+          <div><span class="text-slate-400 block">ส่วนสูง/น้ำหนัก:</span><span class="font-semibold">{{ selectedEmpProfile.height }} ซม. / {{ selectedEmpProfile.weight }} กก.</span></div>
+          <div><span class="text-slate-400 block">สัญชาติ / เชื้อชาติ:</span><span class="font-semibold">{{ selectedEmpProfile.nationality }} / {{ selectedEmpProfile.race }}</span></div>
+          <div><span class="text-slate-400 block">เลขประจำตัวประชาชน:</span><span class="font-mono font-bold">{{ selectedEmpProfile.idCardNumber }}</span></div>
+          <div><span class="text-slate-400 block">สถานที่ออกบัตร:</span><span class="font-semibold">{{ selectedEmpProfile.idCardIssuePlace || '-' }}</span></div>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-xs text-indigo-700 uppercase tracking-wider mb-2 border-l-4 border-indigo-600 pl-2">3. ที่อยู่ การติดต่อ และสิทธิประโยชน์</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div><span class="text-slate-400 block">ที่อยู่ปัจจุบัน:</span><span class="font-semibold">{{ selectedEmpProfile.currentAddress || '-' }}</span></div>
+          <div><span class="text-slate-400 block">ที่อยู่ตามทะเบียนบ้าน:</span><span class="font-semibold">{{ selectedEmpProfile.registeredAddress || '-' }}</span></div>
+          <div><span class="text-slate-400 block">เบอร์โทรศัพท์พนักงาน:</span><span class="font-mono font-bold text-blue-600">{{ selectedEmpProfile.phone || '-' }}</span></div>
+          <div><span class="text-slate-400 block">โรงพยาบาลประกันสังคม:</span><span class="font-semibold text-emerald-700">{{ selectedEmpProfile.socialSecurityHospital || '-' }}</span></div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button @click="showProfileModal = false" class="px-4 py-2 border rounded-lg text-xs">ปิด</button>
+        <button @click="selectEmployeeForEvaluation(selectedEmpProfile); showProfileModal = false;" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">
+          ⚙️ ไปตั้งค่า KPI ของพนักงานท่านนี้
+        </button>
+      </div>
     </div>
   </div>
-  <div class="scr"><table><thead><tr><th>#</th><th>เดือน</th><th>สังกัด</th><th>แผนก</th><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>Lv</th><th>วันเริ่มงาน</th><th>ช่องทาง</th><th>สถานะ</th><th>วันลาออก</th><th>อายุงาน</th></tr></thead><tbody id="h-tb"></tbody></table></div>
-</div>
-</div></div>
 
-<!-- PAGE 2: ลาออก -->
-<div class="page" id="p2"><div class="wrap">
-<div style="background:#7F1D1D;border-radius:12px;padding:14px 18px;color:#fff;margin-bottom:16px">
-  <div style="font-size:16px;font-weight:700">Dashboard สรุปการลาออก ปี 2026</div>
-  <div style="font-size:12px;opacity:.8">มกราคม — ธันวาคม 2569</div>
 </div>
-<div class="krow">
-  <div class="kpi" style="border-left:4px solid #EF4444"><div style="font-size:12px;color:#64748B;font-weight:600">ลาออกทั้งหมด</div><div class="kn" style="color:#EF4444" id="r-k-total">—</div><div class="ks">คน</div></div>
-  <div class="kpi" style="border-left:4px solid #F59E0B"><div style="font-size:12px;color:#64748B;font-weight:600">ประเภทสูงสุด</div><div style="font-size:13px;font-weight:700;color:#B45309;margin-top:4px" id="r-k-top">—</div></div>
-  <div class="kpi" style="border-left:4px solid #1E293B;cursor:pointer" onclick="RF('blacklist','BLACK LIST','Blacklist')"><div style="font-size:12px;color:#64748B;font-weight:600">Blacklist</div><div class="kn" style="color:#1E293B" id="r-k-bl">—</div><div class="ks">คลิกกรอง</div></div>
-  <div class="kpi" style="border-left:4px solid #2563EB"><div style="font-size:12px;color:#64748B;font-weight:600">ชาย</div><div class="kn" style="color:#2563EB" id="r-k-m">—</div><div class="ks">คน</div></div>
-  <div class="kpi" style="border-left:4px solid #EC4899"><div style="font-size:12px;color:#64748B;font-weight:600">หญิง</div><div class="kn" style="color:#EC4899" id="r-k-f">—</div><div class="ks">คน</div></div>
-</div>
-<div class="g2">
-  <div class="card"><div class="ct">ลาออกรายเดือน</div><div class="cs">👆 คลิกแท่งเพื่อกรอง</div><div id="r-mn" style="overflow:visible;min-height:220px"></div></div>
-  <div class="card"><div class="ct">ประเภทการลาออก</div><div class="cs">👆 คลิกเพื่อกรอง</div><div id="r-tp" style="overflow:visible;min-height:220px"></div></div>
-</div>
-<div class="g2">
-  <div class="card"><div class="ct">Top 5 แผนกลาออกสูง</div><div class="cs">👆 คลิกแท่งเพื่อกรอง</div><div id="r-dp" style="overflow:visible;min-height:200px"></div></div>
-  <div class="card"><div class="ct">สัดส่วนตามสังกัด</div><div class="cs">👆 คลิกเพื่อกรอง</div><div id="r-af" style="overflow:visible;min-height:200px"></div></div>
-</div>
-<div class="card" style="margin-bottom:14px"><div class="ct">สาเหตุการลาออก (รายละเอียด)</div><div class="cs">👆 คลิกเพื่อกรอง</div><div id="r-rs" style="overflow:visible;min-height:220px"></div></div>
-<div class="tbl">
-  <div class="th2">
-    <div class="tr2">
-      <div><b style="font-size:14px">รายชื่อพนักงานที่ลาออก</b><div style="font-size:11px;color:#64748B">กำลังแสดง: <span id="r-d" style="color:#EF4444;font-weight:600">—</span></div></div>
-      <input class="sb" id="r-s" placeholder="ค้นหาชื่อ แผนก..." oninput="RR()">
-    </div>
-    <div id="r-fa" class="fa h">🔍 <strong id="r-fl"></strong><button class="cb" onclick="RC()">✕ ล้าง</button></div>
-    <div class="fr">
-      <select class="fs" id="r-f1" onchange="RR()"><option value="">สังกัด: ทั้งหมด</option></select>
-      <select class="fs" id="r-f2" onchange="RR()"><option value="">แผนก: ทั้งหมด</option></select>
-      <select class="fs" id="r-f3" onchange="RR()"><option value="">เดือน: ทั้งหมด</option></select>
-      <select class="fs" id="r-f4" onchange="RR()"><option value="">ประเภท: ทั้งหมด</option></select>
-      <select class="fs" id="r-f5" onchange="RR()"><option value="">BL: ทั้งหมด</option><option value="BL">BLACK LIST</option><option value="N">ปกติ</option></select>
-    </div>
-  </div>
-  <div class="scr"><table><thead><tr><th>#</th><th>เดือน</th><th>สังกัด</th><th>แผนก</th><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>วันเริ่มงาน</th><th>วันลาออก</th><th>อายุงาน</th><th>ประเภท</th><th>เหตุผล</th><th>BL</th></tr></thead><tbody id="r-tb"></tbody></table></div>
-</div>
-</div></div>
-
-<!-- PAGE 3: โยกย้าย -->
-<div class="page" id="p3"><div class="wrap">
-<div style="background:#4C1D95;border-radius:12px;padding:14px 18px;color:#fff;margin-bottom:16px">
-  <div style="font-size:16px;font-weight:700">การโยกย้าย/ปรับตำแหน่ง ปี 2026</div>
-</div>
-<div class="krow">
-  <div class="kpi" style="border-left:4px solid #7C3AED"><div style="font-size:12px;color:#64748B;font-weight:600">โยกย้ายทั้งหมด</div><div class="kn" style="color:#7C3AED" id="t-k-total">—</div><div class="ks">ครั้ง</div></div>
-  <div class="kpi" style="border-left:4px solid #10B981"><div style="font-size:12px;color:#64748B;font-weight:600">เลื่อนตำแหน่ง</div><div class="kn" style="color:#10B981" id="t-k-up">—</div><div class="ks">ครั้ง</div></div>
-</div>
-<div id="tc"></div>
-</div></div>
 
 <script>
-var SHEET_ID='19tY1wtcz668-M2Yz6QPGghbI17P5vnO6_ZkfGnmHrLE';
-var MN=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-var CL=['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4','#EC4899','#6366F1','#84CC16','#F97316'];
-var DA=[],DH=[],DR=[],DT=[];
+  const { createApp, ref, computed, onMounted, nextTick } = Vue;
 
-// ===== Google Sheets Loader =====
-function gvizUrl(sheet){
-  return'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(sheet);
-}
-function parseGviz(text){
-  var json=JSON.parse(text.replace(/^[^{]*{/,'{').replace(/}\s*[^}]*$/,'}').replace(/^\s*\/\*[^*]*\*\/\s*/,''));
-  var cols=json.table.cols.map(function(c){return c.label||''});
-  return json.table.rows.map(function(row){
-    var obj={};
-    cols.forEach(function(col,i){
-      var cell=row.c&&row.c[i];
-      obj[col]=cell?(cell.f!==undefined&&cell.f!==null?cell.f:(cell.v!==undefined&&cell.v!==null?String(cell.v):'')):''
-    });
-    return obj;
-  });
-}
-function fetchSheet(sheet,cb){
-  fetch(gvizUrl(sheet))
-    .then(function(r){return r.text()})
-    .then(function(t){cb(null,parseGviz(t))})
-    .catch(function(e){cb(e,null)});
-}
+  createApp({
+    setup() {
+      const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwcp1sdUdjqOwUJ2p4e_xuTyaYOp8i6ZB1fflYP5zG4TyPUgH2OHGKn3tB4gg7z5jgZ/exec';
 
-function setOv(msg,err,showRetry){
-  document.getElementById('ov-txt').textContent=msg||'';
-  document.getElementById('ov-err').textContent=err||'';
-  document.getElementById('ov-retry').style.display=showRetry?'':'none';
-}
-function hideOv(){document.getElementById('ov').style.display='none';}
+      const currentView = ref('overview');
+      const isSyncing = ref(false);
+      const employeeList = ref([]);
+      const showProfileModal = ref(false);
+      const selectedEmpProfile = ref(null);
+      const showLinkModal = ref(false);
+      const generatedLinkUrl = ref('');
+      const currentDate = ref('24/08/2026');
+      const evaluatorName = ref('');
+      const evaluatorFeedback = ref('');
 
-function loadAll(){
-  document.getElementById('ov').style.display='flex';
-  setOv('กำลังโหลดข้อมูลจาก Google Sheets…','',false);
-  var done=0,total=4,failed=false;
-  function check(err){
-    if(err&&!failed){failed=true;setOv('⚠️ โหลดข้อมูลไม่สำเร็จ','กรุณาตรวจสอบว่า Google Sheets เปิดสิทธิ์ "ทุกคนที่มีลิงก์" แล้ว',true);return;}
-    if(!err){done++;if(done===total){hideOv();initAll();updateTs();}}
-  }
-  fetchSheet('0 สถานะทำงาน',function(e,d){if(!e){DA=mapDA(d);}check(e);});
-  fetchSheet('1 สรรหา',function(e,d){if(!e){DH=mapDH(d);}check(e);});
-  fetchSheet('2 ลาออก',function(e,d){if(!e){DR=mapDR(d);}check(e);});
-  fetchSheet('3 โยกย้าย',function(e,d){if(!e){DT=mapDT(d);}check(e);});
-}
+      const filterCompany = ref('');
+      const filterDepartment = ref('');
+      const filterStatus = ref('');
+      const empSearchQuery = ref('');
 
-// ===== Data Mappers =====
-function v(r,k){return(r[k]||'').toString().trim()}
-function mapDA(rows){
-  return rows.filter(function(r){return v(r,'ชื่อ สกุล')}).map(function(r){return{
-    id:v(r,'รหัส'),affiliation:v(r,'สังกัด'),dept:v(r,'แผนก'),
-    name:v(r,'ชื่อ สกุล'),nickname:v(r,'ชื่อเล่น'),
-    position:v(r,'ตำแหน่ง'),level:v(r,'เลเวล'),gender:v(r,'เพศ'),
-    startDate:v(r,'วันเริ่มงาน'),tenure:v(r,'อายุงาน'),
-    status:v(r,'สถานะ'),channel:v(r,'ช่องทางการสรรหา')
-  }});
-}
-function mapDH(rows){
-  return rows.filter(function(r){return v(r,'ชื่อ สกุล')}).map(function(r){return{
-    month:v(r,'เดือน'),affiliation:v(r,'สังกัด'),dept:v(r,'แผนก'),
-    id:v(r,'รหัส'),name:v(r,'ชื่อ สกุล'),nickname:v(r,'ชื่อเล่น'),
-    position:v(r,'ตำแหน่ง'),level:v(r,'เลเวล'),gender:v(r,'เพศ'),
-    startDate:v(r,'วันเริ่มงาน'),channel:v(r,'ช่องทางการสรรหา'),
-    status:v(r,'สถานะ'),resignDate:v(r,'วันที่มีผลลาออก'),tenure:v(r,'อายุงาน')
-  }});
-}
-function mapDR(rows){
-  return rows.filter(function(r){return v(r,'ชื่อ สกุล')}).map(function(r){return{
-    month:v(r,'เดือน'),affiliation:v(r,'สังกัด'),dept:v(r,'แผนก'),
-    id:v(r,'รหัส'),name:v(r,'ชื่อ สกุล'),nickname:v(r,'ชื่อเล่น'),
-    position:v(r,'ตำแหน่ง'),level:v(r,'เลเวล'),gender:v(r,'เพศ'),
-    startDate:v(r,'วันเริ่มงาน'),resignDate:v(r,'วันที่มีผลลาออก'),
-    tenure:v(r,'อายุงาน'),resignType:v(r,'ประเภทการลาออก'),
-    reason:v(r,'ประเภทเหตุผล'),detail:v(r,'รายละเอียดเหตุผล'),
-    blacklist:v(r,'บัญชี BLACK LIST')
-  }});
-}
-function mapDT(rows){
-  return rows.filter(function(r){return v(r,'ชื่อ - นามสกุล')}).map(function(r){return{
-    affiliation:v(r,'สังกัด'),dept:v(r,'แผนก'),
-    name:v(r,'ชื่อ - นามสกุล'),nickname:v(r,'ชื่อเล่น'),gender:v(r,'เพศ'),
-    status:v(r,'สถานะ'),
-    oldId:v(r,'รหัส'),oldPosition:v(r,'ตำแหน่งเดิม'),oldLevel:v(r,'Level'),
-    oldStart:v(r,'วันเริ่มงาน'),tenure:v(r,'อายุงาน'),
-    adjustDate:v(r,'วันที่ปรับตำแหน่ง/สัญญา'),
-    newId:v(r,'รหัสใหม่'),newPosition:v(r,'ตำแหน่งใหม่'),newLevel:v(r,'Levelใหม่')
-  }});
-}
+      // Master KPI Template 7 หัวข้อจริงตามระบบ
+      const defaultKpis = [
+        {
+          task: 'ประสิทธิภาพการบริหารอาคารและสาธารณูปโภค (Facilities Management)',
+          target: 'ระบบและอุปกรณ์พร้อมใช้งานไม่น้อยกว่า 98%',
+          indicator: 'ความพร้อมใช้งานของอาคาร ระบบสาธารณูปโภค และสิ่งอำนวยความสะดวก',
+          criteria: '10 คะแนน : พร้อมใช้งานตลอดเดือน\n9 คะแนน : ขัดข้อง 1 ครั้ง/เดือน\n8 คะแนน : ขัดข้อง 2 ครั้ง\n7 คะแนน : ขัดข้อง 3 ครั้ง\n6 คะแนน : ขัดข้อง 4 ครั้ง\n5 คะแนน : ขัดข้อง 5 ครั้ง\n4 คะแนน : ขัดข้อง 6 ครั้ง\n3 คะแนน : ขัดข้อง 7 ครั้ง\n2 คะแนน : ขัดข้อง 8 ครั้ง\n0 คะแนน : ขัดข้องตั้งแต่ 9 ครั้งขึ้นไป',
+          maxScore: 10,
+          score: 0
+        },
+        {
+          task: 'การบริหารแผนซ่อมบำรุงเชิงป้องกัน (Preventive Maintenance Management)',
+          target: 'เครื่องจักรและอาคารได้รับการบำรุงรักษาตามแผน ไม่เกิดงานเสียซ้ำ',
+          indicator: 'การวางแผน PM การติดตามงาน และผลการดำเนินงาน',
+          criteria: '10 คะแนน = วางแผน PM ครบ ติดตามครบ ไม่พบค้าง ไม่เกิด Breakdown\n8 คะแนน = มีตกค้างเล็กน้อย ไม่กระทบการใช้งาน\n6 คะแนน = PM ล่าช้า หรือพบงานเสียซ้ำ 1 ครั้ง\n4 คะแนน = ตกค้างหลายรายการ หรือ Breakdown 2 ครั้ง\n2 คะแนน = ไม่เป็นไปตามแผน กระทบต่อการใช้งาน\n0 คะแนน = ไม่มีการควบคุมแผน PM หรือเสียหายรุนแรง',
+          maxScore: 10,
+          score: 0
+        },
+        {
+          task: 'การบริหารทีมงานและการพัฒนาบุคลากร (Team Management & Development)',
+          target: 'ทีมงานปฏิบัติงานได้ตามมาตรฐานและพัฒนาศักยภาพอย่างต่อเนื่อง',
+          indicator: 'การวางแผนงาน การมอบหมายงาน การติดตาม และการพัฒนาทีม',
+          criteria: '10 คะแนน = วางแผนชัดเจน มอบหมายเหมาะสม ทีมทำงานได้เอง มีโค้ชทีม\n8 คะแนน = ทีมทำงานได้ตามแผน มีข้อผิดพลาดเล็กน้อย\n6 คะแนน = ต้องติดตามงานบ่อย หรือพบข้อผิดพลาดบางครั้ง\n4 คะแนน = ทีมทำงานไม่เป็นระบบ ส่งงานล่าช้า\n2 คะแนน = บริหารทีมไม่ได้ เกิดข้อร้องเรียนหลายครั้ง\n0 คะแนน = ทีมไม่สามารถดำเนินงานได้ตามเป้าหมาย',
+          maxScore: 10,
+          score: 0
+        },
+        {
+          task: 'การบริหารความปลอดภัยของอาคาร (Building Safety Management)',
+          target: 'อาคารมีความปลอดภัย พร้อมใช้งาน และลดความเสี่ยง',
+          indicator: 'การตรวจความปลอดภัย การแก้ไขความเสี่ยง และการควบคุมเหตุการณ์',
+          criteria: '10 คะแนน = ตรวจครบ แก้ไขความเสี่ยงทันที ไม่เกิดอุบัติเหตุ\n8 คะแนน = พบความเสี่ยงเล็กน้อย แก้ไขได้ทันเวลา\n6 คะแนน = พบข้อบกพร่องที่ต้องติดตามแก้ไข\n4 คะแนน = พบข้อบกพร่องหลายจุด หรือเกิดเหตุเล็กน้อย\n2 คะแนน = เกิดเหตุกระทบการทำงานจากการละเลย\n0 คะแนน = เกิดอุบัติเหตุร้ายแรงหรือความเสียหายจากการบริหาร',
+          maxScore: 10,
+          score: 0
+        },
+        {
+          task: 'การควบคุมค่าใช้จ่ายด้านอาคาร (Facilities Cost Management)',
+          target: 'ควบคุมค่าใช้จ่ายให้อยู่ในงบประมาณ และบริหารการใช้ทรัพยากรอย่างคุ้มค่า',
+          indicator: 'ผลการบริหารงบประมาณและการอนุมัติค่าใช้จ่าย',
+          criteria: '10 คะแนน = คุมงบได้ตามเป้า ไม่มีเกิน มีแนวทางลดต้นทุนอย่างน้อย 1 โครงการ\n8 คะแนน = อยู่ในงบ มีเกินเล็กน้อยแต่ได้รับอนุมัติล่วงหน้า\n6 คะแนน = มีเกินงบบางรายการ พร้อมชี้แจงเหตุผลได้\n4 คะแนน = เกินงบหลายรายการ หรือคุมงบได้ไม่ดี\n2 คะแนน = เกินงบจนกระทบแผนงาน\n0 คะแนน = ไม่สามารถคุมงบได้ หรือมีค่าใช้จ่ายไม่ได้รับอนุมัติ',
+          maxScore: 10,
+          score: 0
+        },
+        {
+          task: 'การบริหารผู้รับเหมา (Contractor Management)',
+          target: 'ผู้รับเหมาปฏิบัติงานได้ตามมาตรฐาน คุณภาพ และกำหนดเวลา',
+          indicator: 'คุณภาพงาน การควบคุมผู้รับเหมา และการส่งมอบงาน',
+          criteria: '10 คะแนน = ส่งมอบตรงเวลา คุณภาพผ่าน ไม่มีแก้ไข ไม่มีข้อร้องเรียน\n8 คะแนน = มีแก้ไขเล็กน้อย ส่งมอบได้ตามกำหนด\n6 คะแนน = ส่งมอบล่าช้าเล็กน้อย หรือแก้ไขบางส่วน\n4 คะแนน = ล่าช้าหลายครั้ง หรือคุณภาพไม่ได้มาตรฐาน\n2 คะแนน = ทำงานผิดมาตรฐาน กระทบต่อการดำเนินงาน\n0 คะแนน = ไม่สามารถควบคุมได้ งานล่าช้าหรือเกิดความเสียหาย',
+          maxScore: 10,
+          score: 0
+        },
+        {
+          task: 'ความพึงพอใจของผู้ใช้อาคาร (User Satisfaction)',
+          target: 'ผู้ใช้อาคารได้รับบริการที่รวดเร็ว สุภาพ และมีคุณภาพ',
+          indicator: 'ผลการให้บริการ ข้อร้องเรียน และการติดตามแก้ไข',
+          criteria: '10 คะแนน = ไม่มีข้อร้องเรียน ได้รับคำชื่นชม ติดตามงานครบทุกเรื่อง\n8 คะแนน = มีข้อร้องเรียนเล็กน้อย แก้ไขได้ทันที\n6 คะแนน = มีข้อร้องเรียนเป็นครั้งคราว ต้องติดตามแก้ไข\n4 คะแนน = มีข้อร้องเรียนหลายครั้ง หรือแก้ไขล่าช้า\n2 คะแนน = มีข้อร้องเรียนซ้ำจากสาเหตุเดิม กระทบการทำงาน\n0 คะแนน = ไม่สามารถแก้ไขปัญหาได้ หรือมีข้อร้องเรียนรุนแรง',
+          maxScore: 10,
+          score: 0
+        }
+      ];
 
-// ===== Helpers =====
-function SP(i){document.querySelectorAll('.page').forEach(function(p,j){p.classList.toggle('active',j===i)});document.querySelectorAll('.tb').forEach(function(t,j){t.classList.toggle('on',j===i)})}
-function cB(a,k){var m={};a.forEach(function(r){var vv=r[k]||'ไม่ระบุ';m[vv]=(m[vv]||0)+1});return m}
-function nC(c){if(!c)return'ไม่ระบุ';var l=c.trim().toLowerCase();if(l.includes('jobthai'))return'Jobthai';if(l.includes('jobtopgun'))return'Jobtopgun';if(l.includes('jobbkk'))return'Jobbkk';if(l.includes('facebook')||l==='fb')return'Facebook';if(l.includes('พนักงาน')||l.includes('เพื่อน')||l.includes('แนะนำ'))return'พนักงานแนะนำ';if(l.includes('walk')||l.includes('ป้าย'))return'Walk-in';if(l.includes('line'))return'Line';return c||'ไม่ระบุ'}
-function pS(id,opts,pfx){var s=document.getElementById(id);if(!s)return;var c=s.value;s.innerHTML='<option value="">'+pfx+': ทั้งหมด</option>'+Array.from(new Set(opts)).filter(Boolean).sort().map(function(o){return'<option value="'+o+'">'+o+'</option>'}).join('');if(Array.from(s.options).some(function(o){return o.value===c}))s.value=c}
-function updateTs(){var n=new Date();document.getElementById('ts').textContent='📅 อัปเดต: '+n.toLocaleDateString('th-TH')+'  '+n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})+' 🔄 รีเฟรช'}
+      const adminData = ref({
+        empId: '0426015',
+        empName: 'นาย สิทธา ตังตระกูล',
+        position: 'หัวหน้าอาคารเเละสถานที่',
+        department: 'อาคารและสถานที่',
+        company: '',
+        kpis: JSON.parse(JSON.stringify(defaultKpis))
+      });
 
-// ===== Charts (SVG) =====
-function mkBH(id,lb,dt,cb){
-  var e=document.getElementById(id);if(!e||!lb.length)return;
-  var mx=Math.max.apply(null,dt)||1;
-  var w=e.parentElement.offsetWidth||400;
-  var rh=22,pad=130,svgH=lb.length*(rh+4)+10;
-  var svg='<svg width="100%" height="'+svgH+'" viewBox="0 0 '+w+' '+svgH+'" xmlns="http://www.w3.org/2000/svg">';
-  lb.forEach(function(l,i){
-    var bw=Math.round(((dt[i]||0)/mx)*(w-pad-40));
-    var y=i*(rh+4);
-    svg+='<text x="'+(pad-6)+'" y="'+(y+rh/2+5)+'" text-anchor="end" font-size="11" fill="#475569" font-family="Sarabun">'+(l.length>16?l.substr(0,15)+'…':l)+'</text>';
-    svg+='<rect x="'+pad+'" y="'+y+'" width="'+Math.max(2,bw)+'" height="'+rh+'" rx="3" fill="'+CL[i%CL.length]+'" style="cursor:pointer" onclick="('+(cb?'function(){var _cb='+cb.toString()+';_cb("'+l.replace(/"/g,'&quot;')+'")}':'function(){}')+')()">';
-    svg+='<title>'+l+': '+dt[i]+'</title></rect>';
-    if(dt[i])svg+='<text x="'+(pad+bw+5)+'" y="'+(y+rh/2+5)+'" font-size="11" fill="#334155" font-family="Sarabun">'+dt[i]+'</text>';
-  });
-  svg+='</svg>';
-  e.innerHTML=svg;e.style.overflow='visible';
-}
-function mkB(id,lb,dt,co,cb){
-  var e=document.getElementById(id);if(!e||!lb.length)return;
-  var c=co||CL,mx=Math.max.apply(null,dt)||1;
-  var w=e.parentElement.offsetWidth||400,h=220;
-  var pad=30,bw=Math.max(20,Math.floor((w-pad*2)/lb.length)-4);
-  var svg='<svg width="100%" height="'+h+'" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg">';
-  lb.forEach(function(l,i){
-    var bh=Math.round(((dt[i]||0)/mx)*(h-pad-35));
-    var x=pad+i*(bw+4);var y=h-pad-bh;
-    var col=Array.isArray(c)?c[i%c.length]:c;
-    svg+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="3" fill="'+col+'" style="cursor:pointer" onclick="('+(cb?'function(){var _cb='+cb.toString()+';_cb("'+l.replace(/"/g,'&quot;')+'")}':'function(){}')+')()">';
-    svg+='<title>'+l+': '+dt[i]+'</title></rect>';
-    svg+='<text x="'+(x+bw/2)+'" y="'+(h-pad+13)+'" text-anchor="middle" font-size="9" fill="#64748B" font-family="Sarabun">'+(l.length>6?l.substr(0,5)+'…':l)+'</text>';
-    if(dt[i])svg+='<text x="'+(x+bw/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="9" fill="#334155">'+dt[i]+'</text>';
-  });
-  svg+='</svg>';
-  e.innerHTML=svg;e.style.overflow='visible';
-}
-function mkD(id,lb,dt,cb){
-  var e=document.getElementById(id);if(!e||!lb.length)return;
-  var total=dt.reduce(function(a,b){return a+b},0)||1;
-  var w=e.parentElement.offsetWidth||300;
-  var sz=Math.min(180,w/2);var cx=sz/2,cy=sz/2,r=sz/2-8,ir=r*0.55;
-  var legH=lb.length*18;
-  var svg='<svg width="'+(sz+Math.max(180,w-sz))+'" height="'+Math.max(sz,legH+10)+'" viewBox="0 0 '+(sz+Math.max(180,w-sz))+' '+Math.max(sz,legH+10)+'" xmlns="http://www.w3.org/2000/svg">';
-  var angle=-Math.PI/2;
-  dt.forEach(function(vv,i){
-    var slice=(vv/total)*Math.PI*2;if(slice<0.001)return;
-    var x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
-    var x2=cx+r*Math.cos(angle+slice),y2=cy+r*Math.sin(angle+slice);
-    var lf=slice>Math.PI?1:0;
-    var xi1=cx+ir*Math.cos(angle),yi1=cy+ir*Math.sin(angle);
-    var xi2=cx+ir*Math.cos(angle+slice),yi2=cy+ir*Math.sin(angle+slice);
-    svg+='<path d="M'+xi1+','+yi1+' L'+x1+','+y1+' A'+r+','+r+' 0 '+lf+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ir+','+ir+' 0 '+lf+',0 '+xi1+','+yi1+' Z" fill="'+CL[i%CL.length]+'" style="cursor:pointer" onclick="('+(cb?'function(){var _cb='+cb.toString()+';_cb("'+lb[i].replace(/"/g,'&quot;')+'")}':'function(){}')+')()">';
-    svg+='<title>'+lb[i]+': '+vv+'</title></path>';
-    angle+=slice;
-  });
-  var lx=sz+10;
-  lb.forEach(function(l,i){
-    var ly=i*18+12;
-    svg+='<rect x="'+lx+'" y="'+ly+'" width="10" height="10" rx="2" fill="'+CL[i%CL.length]+'"/>';
-    svg+='<text x="'+(lx+14)+'" y="'+(ly+9)+'" font-size="11" fill="#475569" font-family="Sarabun">'+l+' ('+dt[i]+')</text>';
-  });
-  svg+='</svg>';
-  e.innerHTML=svg;e.style.overflow='visible';
-}
-function mkG(id,lb,d1,d2,l1,l2,c1,c2,cb){
-  var e=document.getElementById(id);if(!e||!lb.length)return;
-  var mx=Math.max.apply(null,d1.concat(d2))||1;
-  var w=e.parentElement.offsetWidth||400,h=220;
-  var pad=30,bw=Math.max(6,Math.floor((w-pad*2)/lb.length/2)-2);
-  var svg='<svg width="100%" height="'+h+'" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg">';
-  svg+='<rect x="'+pad+'" y="6" width="10" height="10" rx="2" fill="'+c1+'"/><text x="'+(pad+14)+'" y="15" font-size="10" fill="#475569" font-family="Sarabun">'+l1+'</text>';
-  svg+='<rect x="'+(pad+70)+'" y="6" width="10" height="10" rx="2" fill="'+c2+'"/><text x="'+(pad+84)+'" y="15" font-size="10" fill="#475569" font-family="Sarabun">'+l2+'</text>';
-  lb.forEach(function(l,i){
-    var x=pad+i*(bw*2+6);
-    var bh1=Math.round(((d1[i]||0)/mx)*(h-pad-40));
-    var bh2=Math.round(((d2[i]||0)/mx)*(h-pad-40));
-    svg+='<rect x="'+x+'" y="'+(h-pad-bh1)+'" width="'+bw+'" height="'+bh1+'" rx="2" fill="'+c1+'" style="cursor:pointer"><title>'+l+' '+l1+': '+d1[i]+'</title></rect>';
-    svg+='<rect x="'+(x+bw+1)+'" y="'+(h-pad-bh2)+'" width="'+bw+'" height="'+bh2+'" rx="2" fill="'+c2+'" style="cursor:pointer"><title>'+l+' '+l2+': '+d2[i]+'</title></rect>';
-    svg+='<text x="'+(x+bw)+'" y="'+(h-pad+13)+'" text-anchor="middle" font-size="9" fill="#64748B" font-family="Sarabun">'+(l.length>5?l.substr(0,4)+'…':l)+'</text>';
-  });
-  svg+='</svg>';
-  e.innerHTML=svg;e.style.overflow='visible';
-}
+      const addKpiRow = () => {
+        adminData.value.kpis.push({
+          task: 'งานที่ได้รับมอบหมายเพิ่มเติม',
+          target: 'สำเร็จตามเป้าหมาย',
+          indicator: 'ความถูกต้องและทันเวลา',
+          criteria: '10 คะแนน = ดีเยี่ยม\n5 คะแนน = ปานกลาง\n0 คะแนน = ล่าช้า',
+          maxScore: 10,
+          score: 0
+        });
+      };
 
-// ===== PAGE 0 =====
-var aF=null;
-function AF(k,vv,l){aF={k:k,v:vv,l:l};document.getElementById('a-fa').classList.remove('h');document.getElementById('a-fl').textContent=l;AR()}
-function AC(){aF=null;document.getElementById('a-fa').classList.add('h');AR()}
-function IA(){
-  pS('a-f1',DA.map(function(r){return r.affiliation}),'สังกัด');
-  pS('a-f2',DA.map(function(r){return r.dept}),'แผนก');
-  document.getElementById('a-k-total').textContent=DA.length;
-  document.getElementById('a-k-m').textContent=DA.filter(function(r){return r.gender==='ชาย'}).length;
-  document.getElementById('a-k-f').textContent=DA.filter(function(r){return r.gender==='หญิง'}).length;
-  var cm={};DA.forEach(function(r){var c=nC(r.channel);cm[c]=(cm[c]||0)+1});
-  mkD('a-ch',Object.keys(cm),Object.values(cm),function(l){AF('channel',l,'ช่องทาง: '+l)});
-  var dm=cB(DA,'dept'),ds=Object.entries(dm).sort(function(a,b){return b[1]-a[1]});
-  mkBH('a-dp',ds.map(function(x){return x[0]}),ds.map(function(x){return x[1]}),function(l){AF('dept',l,'แผนก: '+l)});
-  AR();
-}
-function AR(){
-  var q=(document.getElementById('a-s').value||'').toLowerCase();
-  var f1=document.getElementById('a-f1').value,f2=document.getElementById('a-f2').value,f3=document.getElementById('a-f3').value;
-  var d=DA.filter(function(r){
-    if(aF){if(aF.k==='gender'&&r.gender!==aF.v)return false;if(aF.k==='dept'&&r.dept!==aF.v)return false;if(aF.k==='channel'&&nC(r.channel)!==aF.v)return false;}
-    if(f1&&r.affiliation!==f1)return false;if(f2&&r.dept!==f2)return false;if(f3&&r.gender!==f3)return false;
-    if(q&&!(r.name+r.dept+r.position+r.id+r.affiliation).toLowerCase().includes(q))return false;
-    return true;
-  });
-  document.getElementById('a-d').textContent=(aF?aF.l:'ทั้งหมด')+' '+d.length+' คน';
-  document.getElementById('a-tb').innerHTML=d.map(function(r,i){
-    var gBx=r.gender==='ชาย'?'bb':'br';
-    return'<tr><td style="color:#94A3B8;font-weight:600">'+(i+1)+'</td><td style="font-family:monospace;font-size:11px">'+r.id+'</td><td><span class="bx bb">'+r.affiliation+'</span></td><td>'+r.dept+'</td><td style="font-weight:600">'+r.name+(r.nickname?' ('+r.nickname+')':'')+'</td><td style="color:#475569;font-size:12px">'+r.position+'</td><td style="text-align:center">'+r.level+'</td><td style="text-align:center"><span class="bx '+gBx+'">'+r.gender+'</span></td><td style="font-family:monospace;font-size:12px">'+r.startDate+'</td><td style="font-size:12px;color:#475569">'+r.tenure+'</td><td><span class="bx bg">'+r.status+'</span></td></tr>';
-  }).join('')||'<tr><td colspan="11" style="text-align:center;padding:20px;color:#94A3B8">ไม่พบข้อมูล</td></tr>';
-}
+      const removeKpiRow = (index) => {
+        adminData.value.kpis.splice(index, 1);
+      };
 
-// ===== PAGE 1 =====
-var hF=null;
-function HF(k,vv,l,xs){hF={k:k,v:vv,l:l,xs:xs};document.getElementById('h-fa').classList.remove('h');document.getElementById('h-fl').textContent=l;HR()}
-function HC(){hF=null;document.getElementById('h-fa').classList.add('h');HR()}
-function IH(){
-  pS('h-f1',DH.map(function(r){return r.affiliation}),'สังกัด');
-  pS('h-f2',DH.map(function(r){return r.dept}),'แผนก');
-  pS('h-f3',MN.filter(function(m){return DH.some(function(r){return r.month===m})}),'เดือน');
-  var total=DH.length,work=DH.filter(function(r){return r.status==='ทำงาน'}).length,res=DH.filter(function(r){return r.status==='ลาออก'}).length;
-  document.getElementById('h-k-total').textContent=total;
-  document.getElementById('h-k-work').textContent=work;
-  document.getElementById('h-k-resign').textContent=res;
-  document.getElementById('h-k-ret').textContent=total?Math.round(work/total*100)+'%':'—';
-  document.getElementById('h-k-m').textContent=DH.filter(function(r){return r.gender==='ชาย'}).length;
-  document.getElementById('h-k-f').textContent=DH.filter(function(r){return r.gender==='หญิง'}).length;
-  var ml=MN.filter(function(m){return DH.some(function(r){return r.month===m})});
-  mkG('h-mn',ml,ml.map(function(m){return DH.filter(function(r){return r.month===m}).length}),ml.map(function(m){return DH.filter(function(r){return r.month===m&&r.status==='ลาออก'}).length}),'รับเข้า','ลาออก','#3B82F6','#EF4444',function(l){HF('month',l,'เดือน: '+l)});
-  var dp=Array.from(new Set(DH.map(function(r){return r.dept}))).filter(Boolean);
-  mkG('h-dp',dp,dp.map(function(d){return DH.filter(function(r){return r.dept===d&&r.status==='ทำงาน'}).length}),dp.map(function(d){return DH.filter(function(r){return r.dept===d&&r.status==='ลาออก'}).length}),'ทำงาน','ลาออก','#10B981','#EF4444',function(l){HF('dept',l,'แผนก: '+l)});
-  var cm={};DH.forEach(function(r){var c=nC(r.channel);cm[c]=(cm[c]||0)+1});
-  mkD('h-ch',Object.keys(cm),Object.values(cm),function(l){HF('channel',l,'ช่องทาง: '+l)});
-  var am=cB(DH,'affiliation');
-  mkD('h-af',Object.keys(am),Object.values(am),function(l){HF('affiliation',l,'สังกัด: '+l)});
-  HR();
-}
-function HR(){
-  var q=(document.getElementById('h-s').value||'').toLowerCase();
-  var f1=document.getElementById('h-f1').value,f2=document.getElementById('h-f2').value,f3=document.getElementById('h-f3').value,f4=document.getElementById('h-f4').value;
-  var d=DH.filter(function(r){
-    if(hF){if(hF.k==='status'&&r.status!==hF.v)return false;if(hF.k==='month'&&r.month!==hF.v)return false;if(hF.k==='dept'&&r.dept!==hF.v)return false;if(hF.k==='channel'&&nC(r.channel)!==hF.v)return false;if(hF.k==='affiliation'&&r.affiliation!==hF.v)return false;if(hF.xs&&r.status!==hF.xs)return false;}
-    if(f1&&r.affiliation!==f1)return false;if(f2&&r.dept!==f2)return false;if(f3&&r.month!==f3)return false;if(f4&&r.status!==f4)return false;
-    if(q&&!(r.name+r.dept+r.position+r.affiliation).toLowerCase().includes(q))return false;
-    return true;
-  });
-  document.getElementById('h-d').textContent=(hF?hF.l:'ทั้งหมด')+' '+d.length+' คน';
-  document.getElementById('h-tb').innerHTML=d.map(function(r,i){
-    return'<tr><td style="color:#94A3B8;font-weight:600">'+(i+1)+'</td><td style="font-size:11px">'+r.month+'</td><td><span class="bx bb">'+r.affiliation+'</span></td><td>'+r.dept+'</td><td style="font-weight:600">'+r.name+(r.nickname?' ('+r.nickname+')':'')+'</td><td style="color:#475569;font-size:12px">'+r.position+'</td><td style="text-align:center">'+r.level+'</td><td style="font-family:monospace;font-size:12px">'+r.startDate+'</td><td style="font-size:11px;color:#475569">'+nC(r.channel)+'</td><td><span class="bx '+(r.status==='ทำงาน'?'bg':'br')+'">'+r.status+'</span></td><td style="font-family:monospace;font-size:12px;color:#EF4444">'+(r.resignDate||'-')+'</td><td style="font-size:12px;color:#475569">'+r.tenure+'</td></tr>';
-  }).join('')||'<tr><td colspan="12" style="text-align:center;padding:20px;color:#94A3B8">ไม่พบข้อมูล</td></tr>';
-}
+      const generateEvaluationLink = () => {
+        generatedLinkUrl.value = window.location.href.split('?')[0] + `?evalEmpId=${adminData.value.empId}&view=evaluator`;
+        showLinkModal.value = true;
+      };
 
-// ===== PAGE 2 =====
-var rF=null;
-function RF(k,vv,l){rF={k:k,v:vv,l:l};document.getElementById('r-fa').classList.remove('h');document.getElementById('r-fl').textContent=l;RR()}
-function RC(){rF=null;document.getElementById('r-fa').classList.add('h');RR()}
-function IR(){
-  pS('r-f1',DR.map(function(r){return r.affiliation}),'สังกัด');
-  pS('r-f2',DR.map(function(r){return r.dept}),'แผนก');
-  pS('r-f3',MN.filter(function(m){return DR.some(function(r){return r.month===m})}),'เดือน');
-  var rtypes=Array.from(new Set(DR.map(function(r){return r.resignType}).filter(Boolean))).sort();
-  var sel=document.getElementById('r-f4');
-  sel.innerHTML='<option value="">ประเภท: ทั้งหมด</option>'+rtypes.map(function(o){return'<option value="'+o+'">'+o+'</option>'}).join('');
-  document.getElementById('r-k-total').textContent=DR.length;
-  document.getElementById('r-k-bl').textContent=DR.filter(function(r){return r.blacklist==='BLACK LIST'}).length;
-  document.getElementById('r-k-m').textContent=DR.filter(function(r){return r.gender==='ชาย'}).length;
-  document.getElementById('r-k-f').textContent=DR.filter(function(r){return r.gender==='หญิง'}).length;
-  var tm=cB(DR,'resignType'),top1=Object.entries(tm).filter(function(x){return x[0]&&x[0]!=='ไม่ระบุ'}).sort(function(a,b){return b[1]-a[1]})[0];
-  document.getElementById('r-k-top').textContent=top1?top1[0]+' ('+top1[1]+' คน)':'—';
-  var ml=MN.filter(function(m){return DR.some(function(r){return r.month===m})});
-  mkB('r-mn',ml,ml.map(function(m){return DR.filter(function(r){return r.month===m}).length}),null,function(l){RF('month',l,'เดือน: '+l)});
-  var tpE=Object.entries(cB(DR,'resignType')).filter(function(x){return x[0]&&x[0]!=='ไม่ระบุ'}).sort(function(a,b){return b[1]-a[1]});
-  mkD('r-tp',tpE.map(function(x){return x[0]}),tpE.map(function(x){return x[1]}),function(l){RF('resignType',l,'ประเภท: '+l)});
-  var dm=cB(DR,'dept'),dt=Object.entries(dm).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
-  mkB('r-dp',dt.map(function(x){return x[0]}),dt.map(function(x){return x[1]}),['#8B5CF6'],function(l){RF('dept',l,'แผนก: '+l)});
-  var am=cB(DR,'affiliation');
-  mkD('r-af',Object.keys(am),Object.values(am),function(l){RF('affiliation',l,'สังกัด: '+l)});
-  var rm=cB(DR,'reason'),rs=Object.entries(rm).filter(function(x){return x[0]&&x[0]!=='ไม่ระบุ'}).sort(function(a,b){return b[1]-a[1]}).slice(0,10);
-  mkBH('r-rs',rs.map(function(x){return x[0]}),rs.map(function(x){return x[1]}),function(l){RF('reason',l,'เหตุผล: '+l)});
-  RR();
-}
-function RR(){
-  var q=(document.getElementById('r-s').value||'').toLowerCase();
-  var f1=document.getElementById('r-f1').value,f2=document.getElementById('r-f2').value,f3=document.getElementById('r-f3').value,f4=document.getElementById('r-f4').value,f5=document.getElementById('r-f5').value;
-  var d=DR.filter(function(r){
-    if(rF){if(rF.k==='blacklist'&&r.blacklist!=='BLACK LIST')return false;if(rF.k==='month'&&r.month!==rF.v)return false;if(rF.k==='dept'&&r.dept!==rF.v)return false;if(rF.k==='reason'&&r.reason!==rF.v)return false;if(rF.k==='affiliation'&&r.affiliation!==rF.v)return false;if(rF.k==='resignType'&&r.resignType!==rF.v)return false;}
-    if(f1&&r.affiliation!==f1)return false;if(f2&&r.dept!==f2)return false;if(f3&&r.month!==f3)return false;if(f4&&r.resignType!==f4)return false;
-    if(f5==='BL'&&r.blacklist!=='BLACK LIST')return false;if(f5==='N'&&r.blacklist==='BLACK LIST')return false;
-    if(q&&!(r.name+r.dept+r.position+r.reason+r.affiliation).toLowerCase().includes(q))return false;
-    return true;
-  });
-  document.getElementById('r-d').textContent=(rF?rF.l:'ทั้งหมด')+' '+d.length+' คน';
-  document.getElementById('r-tb').innerHTML=d.map(function(r,i){
-    var bl=r.blacklist==='BLACK LIST';
-    return'<tr style="'+(bl?'background:#FEF2F2':'')+'"><td style="color:#94A3B8;font-weight:600">'+(i+1)+'</td><td style="font-size:11px">'+r.month+'</td><td><span class="bx bb">'+r.affiliation+'</span></td><td>'+r.dept+'</td><td style="font-weight:600">'+r.name+(r.nickname?' ('+r.nickname+')':'')+'</td><td style="color:#475569;font-size:12px">'+r.position+'</td><td style="font-family:monospace;font-size:12px">'+r.startDate+'</td><td style="font-family:monospace;font-size:12px;color:#EF4444;font-weight:600">'+r.resignDate+'</td><td style="font-size:12px;color:#475569">'+r.tenure+'</td><td><span class="bx bgr" style="font-size:10px">'+(r.resignType||'-')+'</span></td><td style="font-size:12px;color:#475569;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r.detail+'">'+(r.reason||'-')+'</td><td style="text-align:center">'+(bl?'<span class="bx bbl">BL</span>':'-')+'</td></tr>';
-  }).join('')||'<tr><td colspan="12" style="text-align:center;padding:20px;color:#94A3B8">ไม่พบข้อมูล</td></tr>';
-}
+      const copyLinkText = () => {
+        navigator.clipboard.writeText(generatedLinkUrl.value).then(() => {
+          alert('คัดลอกลิงก์แบบประเมินเรียบร้อยแล้ว!');
+          showLinkModal.value = false;
+        });
+      };
 
-// ===== PAGE 3 =====
-function IT(){
-  document.getElementById('t-k-total').textContent=DT.length;
-  document.getElementById('t-k-up').textContent=DT.filter(function(t){return Number(t.newLevel)>Number(t.oldLevel)}).length;
-  document.getElementById('tc').innerHTML=DT.map(function(t,i){
-    var up=Number(t.newLevel)>Number(t.oldLevel);
-    return'<div style="background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;margin-bottom:14px">'+
-      '<div style="background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:10px 18px;display:flex;align-items:center;gap:10px">'+
-      '<div style="width:32px;height:32px;border-radius:50%;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7C3AED;font-size:13px;flex-shrink:0">'+(i+1)+'</div>'+
-      '<div><div style="font-weight:700;font-size:14px">'+t.name+(t.nickname?' ('+t.nickname+')':'')+'</div>'+
-      '<div style="font-size:12px;color:#64748B">สังกัด '+t.affiliation+' | แผนก '+t.dept+(t.adjustDate?' | ปรับ: '+t.adjustDate:'')+'</div></div></div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr">'+
-      '<div style="padding:14px 18px;border-right:1px solid #E2E8F0;background:#EFF6FF">'+
-      '<div style="font-size:11px;font-weight:700;color:#1D4ED8;margin-bottom:8px">🔵 ตำแหน่งเดิม</div>'+
-      '<div style="font-size:14px;font-weight:600;margin-bottom:6px">'+t.oldPosition+'</div>'+
-      '<div style="display:flex;gap:5px;flex-wrap:wrap"><span class="bx bb">'+t.oldId+'</span><span class="bx bgr">Lv '+t.oldLevel+'</span><span class="bx bgr">'+t.oldStart+'</span></div></div>'+
-      '<div style="padding:14px 18px;background:#F0FDF4">'+
-      '<div style="font-size:11px;font-weight:700;color:#15803D;margin-bottom:8px">🟢 ตำแหน่งใหม่</div>'+
-      '<div style="font-size:14px;font-weight:700;color:#15803D;margin-bottom:6px">'+t.newPosition+(up?' ⬆':'')+'</div>'+
-      '<div style="display:flex;gap:5px;flex-wrap:wrap"><span class="bx bg">'+t.newId+'</span><span class="bx bg">Lv '+t.newLevel+'</span></div></div>'+
-      '</div></div>';
-  }).join('')||'<div style="text-align:center;padding:40px;color:#94A3B8">ไม่มีข้อมูลการโยกย้าย</div>';
-}
+      const fetchEmployees = async () => {
+        isSyncing.value = true;
+        try {
+          const res = await fetch(WEB_APP_URL);
+          const data = await res.json();
+          
+          if (Array.isArray(data) && data.length > 0) {
+            employeeList.value = data.map(item => {
+              const rawId = item['รหัสพนักงาน'] || '';
+              const cleanId = String(rawId).startsWith('0') ? String(rawId) : String(rawId).padStart(7, '0');
 
-function initAll(){IA();IH();IR();IT();}
-window.onload=function(){loadAll();};
+              return {
+                empId: cleanId,
+                gender: String(item['เพศ'] || 'ชาย'),
+                empNameTh: String(item['ชื่อ-นามสกุล (ภาษาไทย)'] || item['ชื่อ-สกุล'] || ''),
+                empNameEn: String(item['ชื่อ-นามสกุล (ภาษาอังกฤษ)'] || ''),
+                nicknameTh: String(item['ชื่อเล่น (ภาษาไทย)'] || item['ชื่อเล่น'] || ''),
+                position: String(item['ตำแหน่ง'] || '-'),
+                level: String(item['เลเวล'] || 'Staff'),
+                department: String(item['แผนก / หน่วยงาน'] || item['แผนก'] || '-'),
+                employmentType: String(item['ประเภทพนักงาน'] || 'รายเดือน'),
+                startDate: String(item['วันที่เริ่มงาน'] || '').split('T')[0],
+                workStatus: String(item['สถานะการทำงาน'] || 'ทำงานอยู่'),
+                tenure: String(item['อายุงาน'] || ''),
+                birthDate: String(item['วันเดือนปีเกิด'] || '').split('T')[0],
+                age: item['อายุ'] || 0,
+                idCardNumber: String(item['เลขประจำตัวประชาชน'] || ''),
+                idCardIssuePlace: String(item['สถานที่ออกบัตรประชาชน'] || ''),
+                nationality: String(item['สัญชาติ'] || 'ไทย'),
+                race: String(item['เชื้อชาติ'] || 'ไทย'),
+                bloodGroup: String(item['กรุ๊ปเลือด'] || 'O'),
+                height: item['ส่วนสูง (ซม.)'] || 0,
+                weight: item['น้ำหนัก (กก.)'] || 0,
+                currentAddress: String(item['ที่อยู่ปัจจุบัน'] || ''),
+                registeredAddress: String(item['ที่อยู่ตามทะเบียนบ้าน'] || ''),
+                phone: String(item['เบอร์โทรศัพท์'] || '-'),
+                socialSecurityHospital: String(item['โรงพยาบาลประกันสังคม'] || '-'),
+                evaluated: false
+              };
+            });
+            renderDashboardCharts();
+          }
+        } catch (error) {
+          console.error('Fetch error:', error);
+        } finally {
+          isSyncing.value = false;
+        }
+      };
+
+      const companyList = computed(() => [...new Set(employeeList.value.map(e => e.company).filter(Boolean))]);
+      const departmentList = computed(() => [...new Set(employeeList.value.map(e => e.department).filter(Boolean))]);
+
+      const filteredEmployees = computed(() => {
+        return employeeList.value.filter(emp => {
+          const q = empSearchQuery.value.trim().toLowerCase();
+          const matchQuery = !q || emp.empId.toLowerCase().includes(q) || emp.empNameTh.toLowerCase().includes(q);
+          const matchDept = !filterDepartment.value || emp.department === filterDepartment.value;
+          const matchStatus = !filterStatus.value || emp.workStatus === filterStatus.value;
+          return matchQuery && matchDept && matchStatus;
+        });
+      });
+
+      const maxPossibleScore = computed(() => adminData.value.kpis.reduce((sum, item) => sum + (Number(item.maxScore) || 0), 0));
+      const totalEarnedScore = computed(() => adminData.value.kpis.reduce((sum, item) => sum + (Number(item.score) || 0), 0));
+      const calculatedPercentage = computed(() => maxPossibleScore.value ? ((totalEarnedScore.value / maxPossibleScore.value) * 100).toFixed(1) : 0);
+      const calculatedGrade = computed(() => {
+        const p = Number(calculatedPercentage.value);
+        if (p >= 90) return 'A';
+        if (p >= 80) return 'B';
+        if (p >= 70) return 'C';
+        return 'D';
+      });
+
+      const gradeBadgeClass = computed(() => {
+        const g = calculatedGrade.value;
+        if (g === 'A') return 'bg-emerald-600 text-white';
+        if (g === 'B') return 'bg-blue-600 text-white';
+        if (g === 'C') return 'bg-amber-600 text-white';
+        return 'bg-rose-600 text-white';
+      });
+
+      const evaluatedCount = computed(() => employeeList.value.filter(e => e.evaluated).length);
+      const pendingEvalCount = computed(() => employeeList.value.filter(e => !e.evaluated).length);
+      const evalProgressPercent = computed(() => employeeList.value.length ? ((evaluatedCount.value / employeeList.value.length) * 100).toFixed(0) : 0);
+      const avgOrgScore = computed(() => '88.5');
+
+      const viewFullProfile = (emp) => {
+        selectedEmpProfile.value = emp;
+        showProfileModal.value = true;
+      };
+
+      const selectEmployeeForEvaluation = (emp) => {
+        adminData.value.empId = emp.empId;
+        adminData.value.empName = emp.empNameTh;
+        adminData.value.position = emp.position;
+        adminData.value.department = emp.department;
+        switchView('admin');
+      };
+
+      const submitEvaluationToReport = () => {
+        const targetEmp = employeeList.value.find(e => e.empId === adminData.value.empId);
+        if (targetEmp) targetEmp.evaluated = true;
+        alert('บันทึกผลการประเมินเรียบร้อยแล้ว!');
+        switchView('report');
+      };
+
+      const copyLineSummary = () => {
+        const text = `เรียน ผู้บริหาร
+📊 **รายงานผลการประเมิน KPI รายบุคคล**
+• **ผู้ถูกประเมิน:** [${adminData.value.empId}] ${adminData.value.empName}
+• **ตำแหน่ง:** ${adminData.value.position} (${adminData.value.department})
+
+🎯 **สรุปคะแนน:**
+• คะแนนเต็ม: ${maxPossibleScore.value} คะแนน
+• ได้คะแนนจริง: ${totalEarnedScore.value} คะแนน
+• คิดเป็น: ${calculatedPercentage.value}%
+• **ผลการประเมิน:** Grade ${calculatedGrade.value}
+
+📝 **ข้อคิดเห็นเพิ่มเติม:** ${evaluatorFeedback.value || 'ไม่มี'}
+📢 จึงเรียนมาเพื่อโปรดทราบค่ะ`;
+
+        navigator.clipboard.writeText(text).then(() => {
+          alert('คัดลอกข้อความสรุปผลส่ง LINE เรียบร้อยแล้ว!');
+        });
+      };
+
+      let gradeChartInstance = null;
+      let deptChartInstance = null;
+
+      const renderDashboardCharts = () => {
+        nextTick(() => {
+          const gradeCtx = document.getElementById('gradeChart');
+          const deptCtx = document.getElementById('deptChart');
+
+          if (gradeCtx) {
+            if (gradeChartInstance) gradeChartInstance.destroy();
+            gradeChartInstance = new Chart(gradeCtx, {
+              type: 'doughnut',
+              data: {
+                labels: ['Grade A', 'Grade B', 'Grade C', 'Grade D'],
+                datasets: [{ data: [15, 60, 20, 5], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'], borderWidth: 0 }]
+              },
+              options: { responsive: true, maintainAspectRatio: false }
+            });
+          }
+
+          if (deptCtx) {
+            if (deptChartInstance) deptChartInstance.destroy();
+            deptChartInstance = new Chart(deptCtx, {
+              type: 'bar',
+              data: {
+                labels: ['ฝ่ายขาย', 'อาคารและสถานที่', 'ฝ่ายบุคคล', 'ฝ่ายบัญชี', 'คลังสินค้า'],
+                datasets: [{ label: 'คะแนนเฉลี่ย (%)', data: [92, 88, 85, 90, 84], backgroundColor: '#4f46e5', borderRadius: 6 }]
+              },
+              options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } }
+            });
+          }
+        });
+      };
+
+      const switchView = (v) => {
+        currentView.value = v;
+        if (v === 'overview') renderDashboardCharts();
+      };
+
+      onMounted(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const evalEmpId = urlParams.get('evalEmpId');
+        const view = urlParams.get('view');
+
+        if (view === 'evaluator') {
+          currentView.value = 'evaluator';
+        }
+
+        fetchEmployees();
+      });
+
+      return {
+        currentView,
+        isSyncing,
+        employeeList,
+        filteredEmployees,
+        companyList,
+        departmentList,
+        filterCompany,
+        filterDepartment,
+        filterStatus,
+        empSearchQuery,
+        adminData,
+        showProfileModal,
+        selectedEmpProfile,
+        showLinkModal,
+        generatedLinkUrl,
+        currentDate,
+        evaluatorName,
+        evaluatorFeedback,
+        maxPossibleScore,
+        totalEarnedScore,
+        calculatedPercentage,
+        calculatedGrade,
+        gradeBadgeClass,
+        evaluatedCount,
+        pendingEvalCount,
+        evalProgressPercent,
+        avgOrgScore,
+        switchView,
+        viewFullProfile,
+        selectEmployeeForEvaluation,
+        addKpiRow,
+        removeKpiRow,
+        generateEvaluationLink,
+        copyLinkText,
+        submitEvaluationToReport,
+        copyLineSummary,
+        fetchEmployees
+      };
+    }
+  }).mount('#app');
 </script>
 </body>
 </html>
