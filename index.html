@@ -1,811 +1,761 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบประเมิน KPI พนักงาน - Performance Hub</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Sarabun', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CATC AI Human Capital Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #0D141B;
+    --panel: #131E28;
+    --panel-2: #17232E;
+    --line: #253846;
+    --line-soft: #1C2A35;
+    --text: #E7EEF3;
+    --text-dim: #8FA3B0;
+    --text-faint: #5C707C;
+    --green: #4FBE8D;
+    --amber: #E3A94B;
+    --red: #DC6A5C;
+    --cyan: #4FB8D6;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Noto Sans Thai', sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:var(--sans); }
+  body{ padding: 28px 32px 60px; min-height:100vh; }
+
+  /* ---------- header ---------- */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:18px; border-bottom:1px solid var(--line);
+    margin-bottom:26px;
+  }
+  .brand{ display:flex; align-items:baseline; gap:12px; }
+  .brand .mark{
+    font-family:var(--mono); font-size:12px; letter-spacing:.12em; color:var(--cyan);
+    border:1px solid var(--cyan); border-radius:3px; padding:3px 7px;
+  }
+  .brand h1{ font-size:18px; font-weight:600; margin:0; letter-spacing:.01em; }
+  .brand .sub{ font-family:var(--mono); font-size:11px; color:var(--text-faint); }
+  nav.modules{ display:flex; gap:6px; }
+  nav.modules button{
+    background:transparent; border:1px solid var(--line); color:var(--text-dim);
+    font-family:var(--sans); font-size:12.5px; padding:7px 12px; border-radius:3px; cursor:pointer;
+    transition: border-color .15s, color .15s;
+  }
+  nav.modules button:hover{ border-color:var(--cyan); color:var(--text); }
+  nav.modules button.active{ border-color:var(--cyan); color:var(--cyan); background:rgba(79,184,214,.08); }
+
+  /* ---------- KPI strip ---------- */
+  .kpi-strip{
+    display:grid; grid-template-columns: repeat(6, 1fr);
+    border:1px solid var(--line); border-radius:4px; overflow:hidden;
+    margin-bottom:30px;
+  }
+  .kpi{
+    padding:16px 16px 14px; border-right:1px solid var(--line); background:var(--panel);
+    position:relative;
+  }
+  .kpi:last-child{ border-right:none; }
+  .kpi .bar{ position:absolute; left:0; top:0; height:2px; width:100%; }
+  .kpi.ok .bar{ background:var(--green); }
+  .kpi.warn .bar{ background:var(--amber); }
+  .kpi.bad .bar{ background:var(--red); }
+  .kpi .num{ font-family:var(--mono); font-size:26px; font-weight:600; line-height:1; margin-bottom:8px; }
+  .kpi.ok .num{ color:var(--green); }
+  .kpi.warn .num{ color:var(--amber); }
+  .kpi.bad .num{ color:var(--red); }
+  .kpi .label{ font-size:12px; color:var(--text-dim); line-height:1.4; }
+
+  /* ---------- section title ---------- */
+  .section-head{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .section-head .tag{ font-family:var(--mono); font-size:11px; color:var(--text-faint); }
+  .section-head h2{ font-size:14px; font-weight:600; margin:0; color:var(--text); }
+  .section-head::after{ content:''; flex:1; height:1px; background:var(--line-soft); }
+
+  /* ---------- AI engine map ---------- */
+  .engine-wrap{
+    border:1px solid var(--line); border-radius:4px; background:
+      radial-gradient(circle at 50% 42%, rgba(79,184,214,.07), transparent 60%), var(--panel);
+    padding: 40px 20px 30px;
+    margin-bottom: 30px;
+  }
+  .engine{
+    position:relative; width:100%; max-width:820px; height:400px; margin:0 auto;
+  }
+  .hub{
+    position:absolute; left:50%; top:38%; transform:translate(-50%,-50%);
+    width:150px; height:150px; border-radius:50%;
+    border:1px solid var(--cyan); background:rgba(79,184,214,.06);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    box-shadow: 0 0 0 1px rgba(79,184,214,.15), 0 0 40px rgba(79,184,214,.08);
+  }
+  .hub .t1{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--cyan); }
+  .hub .t2{ font-size:14px; font-weight:600; margin-top:4px; }
+  .hub .t3{ font-size:10px; color:var(--text-faint); margin-top:5px; font-family:var(--mono); }
+
+  .node{
+    position:absolute; width:118px; padding:10px 12px; border:1px solid var(--line);
+    background:var(--panel-2); border-radius:3px; cursor:pointer; text-align:left;
+    transition: border-color .15s, transform .15s;
+  }
+  .node:hover{ border-color:var(--cyan); transform:translateY(-2px); }
+  .node .n-title{ font-size:12.5px; font-weight:600; color:var(--text); }
+  .node .n-sub{ font-size:10.5px; color:var(--text-faint); margin-top:3px; line-height:1.3; }
+
+  .n1{ left:2%; top:2%; }
+  .n2{ left:22%; top:0%; }
+  .n3{ right:22%; top:0%; }
+  .n4{ right:2%; top:2%; }
+  .n5{ left:50%; top:0%; transform:translateX(-50%); }
+
+  .connector{ position:absolute; background:var(--line); }
+
+  .assistant-row{
+    display:flex; justify-content:center; margin-top:230px;
+  }
+  .assistant{
+    border:1px solid var(--line); background:var(--panel-2); border-radius:3px;
+    padding:10px 22px; text-align:center; cursor:pointer;
+  }
+  .assistant:hover{ border-color:var(--cyan); }
+  .assistant .n-title{ font-size:12.5px; font-weight:600; }
+  .assistant .n-sub{ font-size:10.5px; color:var(--text-faint); margin-top:2px; font-family:var(--mono); }
+
+  svg.wires{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  svg.wires path{ stroke:var(--line-soft); stroke-width:1; fill:none; }
+
+  .node-detail{
+    display:none; margin-top:14px; padding:14px 16px; border:1px solid var(--line-soft);
+    border-left:2px solid var(--cyan); background:rgba(79,184,214,.04); border-radius:2px;
+    font-size:12.5px; color:var(--text-dim); line-height:1.6;
+  }
+  .node-detail.show{ display:block; }
+  .node-detail b{ color:var(--text); }
+
+  /* ---------- Ask AI console ---------- */
+  .console{
+    border:1px solid var(--line); border-radius:4px; background:var(--panel);
+    overflow:hidden;
+  }
+  .console-head{
+    display:flex; align-items:center; gap:8px; padding:12px 16px;
+    border-bottom:1px solid var(--line); background:var(--panel-2);
+  }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); }
+  .console-head .title{ font-family:var(--mono); font-size:12px; color:var(--cyan); letter-spacing:.04em; }
+  .console-body{ padding:20px 22px 24px; }
+
+  .presets{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .presets button{
+    background:transparent; border:1px solid var(--line); color:var(--text-dim);
+    font-family:var(--sans); font-size:12px; padding:7px 12px; border-radius:14px; cursor:pointer;
+  }
+  .presets button:hover{ border-color:var(--cyan); color:var(--text); }
+
+  .prompt-line{ font-family:var(--mono); font-size:13px; color:var(--text); margin-bottom:16px; min-height:20px; }
+  .prompt-line .caret{ display:inline-block; width:7px; height:15px; background:var(--cyan); vertical-align:middle; margin-left:3px; animation: blink 1s step-end infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .prompt-line .prefix{ color:var(--cyan); margin-right:8px; }
+
+  .answer{ display:none; border-top:1px solid var(--line-soft); padding-top:16px; }
+  .answer.show{ display:block; }
+  .answer .risk-item{ display:flex; gap:10px; margin-bottom:9px; font-size:13px; color:var(--text-dim); }
+  .answer .risk-item .sev{ font-family:var(--mono); font-size:11px; padding:1px 6px; border-radius:2px; height:fit-content; margin-top:1px; }
+  .sev.high{ background:rgba(220,106,92,.15); color:var(--red); }
+  .sev.mid{ background:rgba(227,169,75,.15); color:var(--amber); }
+  .answer .rec-head{ font-size:12px; font-family:var(--mono); color:var(--text-faint); margin:16px 0 8px; letter-spacing:.05em; }
+  .answer .rec{ font-size:13px; color:var(--text); padding:8px 0; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center; }
+  .answer .rec:last-child{ border-bottom:1px solid var(--line-soft); }
+  .answer .rec .go{ font-family:var(--mono); font-size:11px; color:var(--cyan); border:1px solid var(--cyan); padding:3px 9px; border-radius:2px; cursor:pointer; background:transparent; }
+
+  footer{ margin-top:30px; font-family:var(--mono); font-size:10.5px; color:var(--text-faint); text-align:center; }
+
+  /* ---------- plan modal ---------- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(6,10,14,.72);
+    align-items:center; justify-content:center; z-index:50;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal{
+    width:100%; max-width:460px; background:var(--panel); border:1px solid var(--line);
+    border-top:2px solid var(--cyan); border-radius:4px; padding:22px 24px 24px;
+  }
+  .modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .modal-tag{ font-family:var(--mono); font-size:10.5px; color:var(--cyan); letter-spacing:.1em; border:1px solid var(--cyan); padding:2px 7px; border-radius:2px; }
+  .modal-close{ background:transparent; border:none; color:var(--text-faint); font-size:14px; cursor:pointer; }
+  .modal-close:hover{ color:var(--text); }
+  .modal h3{ font-size:16px; margin:0 0 10px; color:var(--text); }
+  .modal-meta{ display:flex; gap:16px; font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line-soft); }
+  .modal-meta span b{ display:block; color:var(--text); font-size:12.5px; font-family:var(--sans); margin-top:2px; }
+  .modal-steps .step{ display:flex; gap:10px; font-size:12.5px; color:var(--text-dim); padding:7px 0; line-height:1.5; }
+  .modal-steps .step .n{ font-family:var(--mono); color:var(--text-faint); }
+
+  /* ---------- pages ---------- */
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  .grid-2{ display:grid; grid-template-columns: 1.3fr 1fr; gap:20px; margin-bottom:30px; align-items:stretch; }
+  .panel{ border:1px solid var(--line); border-radius:4px; background:var(--panel); padding:18px 20px; }
+  .panel h3{ font-size:13px; margin:0 0 4px; color:var(--text); }
+  .panel .p-sub{ font-size:11px; color:var(--text-faint); margin-bottom:14px; font-family:var(--mono); }
+  .chart-box{ position:relative; height:220px; }
+  .chart-box.tall{ height:280px; }
+
+  table.data-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.data-table th{ text-align:left; font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--text-faint); font-weight:500; padding:0 10px 8px; border-bottom:1px solid var(--line); }
+  table.data-table td{ padding:10px 10px; border-bottom:1px solid var(--line-soft); color:var(--text-dim); vertical-align:middle; }
+  table.data-table tr:last-child td{ border-bottom:none; }
+  table.data-table td.strong{ color:var(--text); font-weight:500; }
+  .pill{ font-family:var(--mono); font-size:10.5px; padding:2px 8px; border-radius:10px; display:inline-block; }
+  .pill.high{ background:rgba(220,106,92,.15); color:var(--red); }
+  .pill.mid{ background:rgba(227,169,75,.15); color:var(--amber); }
+  .pill.low{ background:rgba(79,190,141,.15); color:var(--green); }
+
+  .progress{ width:100%; height:6px; border-radius:3px; background:var(--line-soft); overflow:hidden; }
+  .progress span{ display:block; height:100%; background:var(--cyan); border-radius:3px; }
+
+  .heatmap{ display:grid; grid-template-columns: 120px repeat(5, 1fr); gap:4px; font-size:11px; }
+  .heatmap .hcell{ padding:9px 4px; text-align:center; border-radius:2px; font-family:var(--mono); color:var(--text); }
+  .heatmap .hlabel{ display:flex; align-items:center; color:var(--text-dim); font-size:11.5px; font-family:var(--sans); }
+  .heatmap .hhead{ text-align:center; font-family:var(--mono); font-size:10px; color:var(--text-faint); padding-bottom:2px; }
+  .h0{ background:rgba(79,190,141,.18); color:var(--green); }
+  .h1{ background:rgba(79,190,141,.32); color:var(--green); }
+  .h2{ background:rgba(227,169,75,.28); color:var(--amber); }
+  .h3{ background:rgba(220,106,92,.30); color:var(--red); }
+  .h4{ background:rgba(220,106,92,.48); color:var(--red); }
+
+  .path-card{ border:1px solid var(--line-soft); border-radius:3px; padding:14px 16px; margin-bottom:10px; }
+  .path-card:last-child{ margin-bottom:0; }
+  .path-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .path-top .p-name{ font-size:13px; font-weight:600; color:var(--text); }
+  .path-top .p-gap{ font-family:var(--mono); font-size:10.5px; color:var(--text-faint); }
+  .path-desc{ font-size:12px; color:var(--text-dim); margin-bottom:10px; }
+  .path-progress-row{ display:flex; align-items:center; gap:10px; }
+  .path-progress-row .progress{ flex:1; }
+  .path-progress-row .pct{ font-family:var(--mono); font-size:11px; color:var(--cyan); width:34px; text-align:right; }
+
+  .stat-row{ display:flex; gap:14px; margin-bottom:16px; }
+  .stat-row .s{ flex:1; border:1px solid var(--line-soft); border-radius:3px; padding:12px 14px; }
+  .stat-row .s .sv{ font-family:var(--mono); font-size:20px; font-weight:600; color:var(--text); }
+  .stat-row .s .sl{ font-size:11px; color:var(--text-faint); margin-top:3px; }
+</style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen">
-<div id="app" class="max-w-[98rem] mx-auto p-4 md:p-6 space-y-6">
+<body>
 
-  <!-- TOP HEADER & ROLE SWITCHER -->
-  <header class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row justify-between items-center gap-4">
-    <div class="flex items-center gap-3">
-      <span class="p-2.5 bg-blue-600 text-white rounded-xl font-bold text-xl shadow-sm">HRMS</span>
-      <div>
-        <h1 class="text-xl font-bold text-slate-800">ระบบบริหารงานบุคคล & ประเมินผลการปฏิบัติงาน KPI</h1>
-        <p class="text-xs text-slate-500">ระบบประเมินผลงานและคุณภาพ</p>
-      </div>
-    </div>
-    
-    <div class="flex flex-wrap items-center gap-2">
-      <button @click="fetchEmployees" class="px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 mr-2">
-        <span :class="{'animate-spin': isSyncing}">🔄</span> {{ isSyncing ? 'กำลังซิงค์...' : 'รีเฟรช Google Sheets' }}
-      </button>
-      <button @click="switchView('overview')" :class="currentView === 'overview' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
-        📈 ภาพรวมองค์กร
-      </button>
-      <button @click="switchView('database')" :class="currentView === 'database' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
-        👥 ฐานข้อมูลพนักงาน ({{ employeeList.length }})
-      </button>
-      <button @click="switchView('admin')" :class="currentView === 'admin' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
-        🛡️ Admin (HR ตั้งค่าเกณฑ์ KPI)
-      </button>
-      <button @click="switchView('evaluator')" :class="currentView === 'evaluator' ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
-        📝 แบบประเมิน (หัวหน้างาน)
-      </button>
-      <button @click="switchView('report')" :class="currentView === 'report' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
-        📊 หน้ารายงานผล
-      </button>
-    </div>
-  </header>
-
-  <!-- ==========================================
-       VIEW 1: OVERVIEW DASHBOARD
-       ========================================== -->
-  <main v-if="currentView === 'overview'" class="space-y-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">พนักงานทั้งหมด</p>
-          <p class="text-3xl font-bold text-slate-800 mt-1">{{ employeeList.length }} <span class="text-sm font-normal text-slate-500">คน</span></p>
-          <span class="text-[11px] text-emerald-600 font-medium">● เชื่อมต่อระบบชีตเรียบร้อย</span>
-        </div>
-        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold">👥</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ประเมินผลสำเร็จ</p>
-          <p class="text-3xl font-bold text-indigo-600 mt-1">{{ evaluatedCount }} <span class="text-sm font-normal text-slate-500">/ {{ employeeList.length }} คน</span></p>
-          <span class="text-[11px] text-indigo-500 font-medium">ความคืบหน้า {{ evalProgressPercent }}%</span>
-        </div>
-        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl font-bold">🎯</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">คะแนนเฉลี่ยองค์กร</p>
-          <p class="text-3xl font-bold text-emerald-600 mt-1">{{ avgOrgScore }}%</p>
-          <span class="text-[11px] text-emerald-600 font-medium">ระดับผลงานเฉลี่ย Grade B+</span>
-        </div>
-        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold">📊</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">รอเข้ารับการประเมิน</p>
-          <p class="text-3xl font-bold text-amber-500 mt-1">{{ pendingEvalCount }} <span class="text-sm font-normal text-slate-500">คน</span></p>
-          <span class="text-[11px] text-amber-600 font-medium">รอบประเมินปี 2026 / Q3</span>
-        </div>
-        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl font-bold">⏳</div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <h3 class="font-bold text-sm text-slate-800 border-b pb-3">📊 สัดส่วนเกรดผลงาน (Grade Distribution)</h3>
-        <div class="h-56 relative flex items-center justify-center">
-          <canvas id="gradeChart"></canvas>
-        </div>
-      </div>
-      <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div class="flex justify-between items-center border-b pb-3">
-          <h3 class="font-bold text-sm text-slate-800">🏢 ประสิทธิภาพ KPI เฉลี่ยรายแผนก (% Performance)</h3>
-          <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-medium">ปี 2026</span>
-        </div>
-        <div class="h-56 relative">
-          <canvas id="deptChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- ==========================================
-       VIEW 2: EMPLOYEE DATABASE
-       ========================================== -->
-  <main v-if="currentView === 'database'" class="space-y-6">
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-      <div class="flex flex-col md:flex-row justify-between md:items-center border-b pb-4 gap-4">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">👥 ทะเบียนประวัติพนักงานทั้งหมด</h2>
-          <p class="text-xs text-slate-500">ข้อมูลเชื่อมต่อ Google Sheets แบบ Real-time ({{ filteredEmployees.length }} รายการ)</p>
-        </div>
-      </div>
-
-      <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">แผนก</label>
-            <select v-model="filterDepartment" class="w-full p-2.5 border rounded-lg bg-white">
-              <option value="">ทั้งหมด</option>
-              <option v-for="d in departmentList" :key="d" :value="d">{{ d }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">สถานะ</label>
-            <select v-model="filterStatus" class="w-full p-2.5 border rounded-lg bg-white">
-              <option value="">ทั้งหมด</option>
-              <option value="ทำงานอยู่">ทำงานอยู่</option>
-              <option value="ลาออก">ลาออก</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">ค้นหา</label>
-            <input type="text" v-model="empSearchQuery" placeholder="ชื่อหรือรหัสพนักงาน..." class="w-full p-2.5 border rounded-lg bg-white">
-          </div>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
-        <table class="w-full text-left text-xs whitespace-nowrap">
-          <thead class="bg-slate-100 text-slate-700 border-b font-semibold">
-            <tr>
-              <th class="p-3 text-center w-12">ลำดับ</th>
-              <th class="p-3">รหัสพนักงาน</th>
-              <th class="p-3">ชื่อ-นามสกุล (ไทย)</th>
-              <th class="p-3">ชื่อเล่น</th>
-              <th class="p-3">ตำแหน่ง / เลเวล</th>
-              <th class="p-3">แผนก / หน่วยงาน</th>
-              <th class="p-3">สถานะ</th>
-              <th class="p-3">เบอร์โทรศัพท์</th>
-              <th class="p-3 text-center sticky right-0 bg-slate-100 shadow-sm">การดำเนินการ</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr v-for="(emp, idx) in filteredEmployees" :key="emp.empId" class="hover:bg-slate-50/80">
-              <td class="p-3 text-center text-slate-400 font-bold">{{ idx + 1 }}</td>
-              <td class="p-3 font-mono font-bold text-indigo-700">{{ emp.empId }}</td>
-              <td class="p-3 font-semibold text-slate-800">{{ emp.empNameTh }}</td>
-              <td class="p-3 text-slate-600">{{ emp.nicknameTh || '-' }}</td>
-              <td class="p-3 text-slate-700">{{ emp.position }} <span v-if="emp.level" class="ml-1 px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded text-[10px]">{{ emp.level }}</span></td>
-              <td class="p-3 text-slate-600">{{ emp.department }}</td>
-              <td class="p-3"><span :class="emp.workStatus === 'ลาออก' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'" class="px-2 py-0.5 rounded-full text-[10px] font-bold">{{ emp.workStatus }}</span></td>
-              <td class="p-3 text-slate-600 font-mono">{{ emp.phone || '-' }}</td>
-              <td class="p-3 text-center space-x-1 sticky right-0 bg-white shadow-sm">
-                <button @click="viewFullProfile(emp)" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 px-2.5 py-1 rounded text-[11px] font-semibold">
-                  👁️ ดูประวัติ
-                </button>
-                <button @click="selectEmployeeForEvaluation(emp)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded text-[11px] font-semibold">
-                  ⚙️ ตั้งค่า KPI
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
-
-  <!-- ==========================================
-       VIEW 3: HR ADMIN (ระบบจัดการและตั้งค่า KPI)
-       ========================================== -->
-  <main v-if="currentView === 'admin'" class="space-y-6">
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-      
-      <!-- Action Bar -->
-      <div class="flex flex-col md:flex-row justify-between md:items-center border-b pb-4 gap-4">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-            ⚙️ HR Admin: สร้างและตั้งค่าเกณฑ์การประเมิน KPI
-          </h2>
-          <p class="text-xs text-slate-500">เลือกพนักงานจากฐานข้อมูล กำหนดเกณฑ์ตัวชี้วัด และสร้างลิงก์ส่งให้ผู้ประเมิน</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button @click="switchView('database')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg border font-medium flex items-center gap-1">
-            👥 เลือกจากฐานข้อมูลพนักงาน
-          </button>
-          <button @click="generateEvaluationLink" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm flex items-center gap-1.5 transition">
-            🔗 บันทึก & สร้างลิงก์ประเมิน
-          </button>
-        </div>
-      </div>
-
-      <!-- Employee Info Inputs -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">รหัสพนักงาน</label>
-          <input type="text" v-model="adminData.empId" class="w-full p-2 border rounded-lg bg-white">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">ชื่อ-สกุล (ผู้ถูกประเมิน)</label>
-          <input type="text" v-model="adminData.empName" class="w-full p-2 border rounded-lg bg-white">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">ตำแหน่ง</label>
-          <input type="text" v-model="adminData.position" class="w-full p-2 border rounded-lg bg-white">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">แผนก</label>
-          <input type="text" v-model="adminData.department" class="w-full p-2 border rounded-lg bg-white">
-        </div>
-      </div>
-
-      <!-- KPI Assignments Settings Table -->
-      <div class="space-y-4">
-        <div class="flex justify-between items-center">
-          <h3 class="font-bold text-slate-800 text-sm">กำหนดรายการการมอบหมายงาน & ตัวชี้วัด KPI (Master Settings)</h3>
-          <button @click="addKpiRow" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-3.5 py-1.5 rounded-lg hover:bg-blue-100 font-semibold flex items-center gap-1">
-            + เพิ่มหัวข้อ KPI
-          </button>
-        </div>
-
-        <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-100 text-slate-700 border-b font-semibold">
-              <tr>
-                <th class="p-3 w-12 text-center">ลำดับ</th>
-                <th class="p-3 w-48">งานที่รับผิดชอบ</th>
-                <th class="p-3 w-40">เป้าหมาย</th>
-                <th class="p-3 w-40">ตัวชี้วัด</th>
-                <th class="p-3">เกณฑ์การประเมิน (Criteria)</th>
-                <th class="p-3 w-24 text-center">คะแนนเต็ม</th>
-                <th class="p-3 w-16 text-center">ลบ</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr v-for="(kpi, idx) in adminData.kpis" :key="idx" class="hover:bg-slate-50">
-                <td class="p-3 text-center font-bold text-slate-400 align-top pt-4">{{ idx + 1 }}</td>
-                <td class="p-2.5 align-top"><textarea v-model="kpi.task" rows="3" class="w-full p-2 border rounded text-xs bg-white"></textarea></td>
-                <td class="p-2.5 align-top"><textarea v-model="kpi.target" rows="3" class="w-full p-2 border rounded text-xs bg-white"></textarea></td>
-                <td class="p-2.5 align-top"><textarea v-model="kpi.indicator" rows="3" class="w-full p-2 border rounded text-xs bg-white"></textarea></td>
-                <td class="p-2.5 align-top"><textarea v-model="kpi.criteria" rows="5" class="w-full p-2 border rounded text-xs leading-relaxed bg-white"></textarea></td>
-                <td class="p-2.5 text-center align-top pt-3">
-                  <input type="number" v-model.number="kpi.maxScore" class="w-16 p-2 border rounded text-center text-xs font-bold bg-white">
-                </td>
-                <td class="p-2.5 text-center align-top pt-4">
-                  <button @click="removeKpiRow(idx)" class="text-rose-500 hover:text-rose-700 font-bold text-sm" title="ลบหัวข้อนี้">✕</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- ==========================================
-       VIEW 4: EVALUATOR FORM (หน้าสำหรับผู้บังคับบัญชา)
-       ========================================== -->
-  <main v-if="currentView === 'evaluator'" class="space-y-6">
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-4 gap-2">
-        <div>
-          <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded font-bold">[{{ adminData.empId }}]</span>
-          <h2 class="text-xl font-bold text-slate-800 mt-1">ประเมิน [{{ adminData.empId }}] - {{ adminData.empName }}</h2>
-        </div>
-        <div class="text-xs text-slate-500 text-right">
-          <p><span class="font-semibold">วันที่ปัจจุบัน:</span> {{ currentDate }}</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-        <div>
-          <p class="text-slate-400 font-medium">ชื่อ-สกุล (ผู้ถูกประเมิน)</p>
-          <p class="font-semibold text-slate-800 text-sm mt-0.5">{{ adminData.empName }}</p>
-        </div>
-        <div>
-          <p class="text-slate-400 font-medium">ตำแหน่ง</p>
-          <p class="font-semibold text-slate-800 text-sm mt-0.5">{{ adminData.position }}</p>
-        </div>
-        <div>
-          <p class="text-slate-400 font-medium">แผนก</p>
-          <p class="font-semibold text-slate-800 text-sm mt-0.5">{{ adminData.department }}</p>
-        </div>
-        <div>
-          <p class="text-slate-400 font-medium">ผู้ประเมิน</p>
-          <input type="text" v-model="evaluatorName" class="w-full p-1.5 border rounded text-xs bg-slate-50" placeholder="ระบุชื่อผู้ประเมิน">
-        </div>
-      </div>
-    </div>
-
-    <!-- Live Score Banner -->
-    <div class="sticky top-4 z-40 bg-slate-900 text-white rounded-xl p-4 shadow-lg flex flex-wrap justify-between items-center gap-4">
-      <div class="flex items-center gap-6">
-        <div>
-          <span class="text-[11px] text-slate-400 block uppercase">คะแนนเต็ม</span>
-          <span class="text-lg font-bold text-slate-200">{{ maxPossibleScore }}</span>
-        </div>
-        <div class="border-l border-slate-700 pl-6">
-          <span class="text-[11px] text-slate-400 block uppercase">ได้คะแนน</span>
-          <span class="text-2xl font-bold text-blue-400">{{ totalEarnedScore }}</span>
-        </div>
-        <div class="border-l border-slate-700 pl-6">
-          <span class="text-[11px] text-slate-400 block uppercase">คิดเป็น %</span>
-          <span class="text-2xl font-bold text-emerald-400">{{ calculatedPercentage }}%</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-xs text-slate-400">เกรดที่ได้:</span>
-        <span class="px-3.5 py-1 rounded-lg text-lg font-bold" :class="gradeBadgeClass">Grade {{ calculatedGrade }}</span>
-      </div>
-    </div>
-
-    <!-- Live Evaluation Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
-        <h3 class="font-bold text-sm text-slate-800">การมอบหมายงานและเกณฑ์การประเมิน</h3>
-        <span class="text-xs text-slate-500">กรอกคะแนนตามผลการปฏิบัติงานจริง</span>
-      </div>
-
-      <div class="overflow-x-auto custom-scrollbar">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-100 text-slate-600 border-b font-semibold">
-            <tr>
-              <th class="p-3 text-center w-12">ลำดับ</th>
-              <th class="p-3 w-48">งานที่รับผิดชอบ</th>
-              <th class="p-3 w-40">เป้าหมาย</th>
-              <th class="p-3 w-36">ตัวชี้วัด</th>
-              <th class="p-3">เกณฑ์การประเมิน</th>
-              <th class="p-3 text-center w-28">คะแนนที่ได้</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr v-for="(kpi, idx) in adminData.kpis" :key="idx" class="hover:bg-slate-50/80">
-              <td class="p-3 text-center font-bold text-slate-400 align-top pt-4">{{ idx + 1 }}</td>
-              <td class="p-3 font-semibold text-slate-800 align-top leading-relaxed">{{ kpi.task }}</td>
-              <td class="p-3 text-slate-600 align-top leading-relaxed">{{ kpi.target }}</td>
-              <td class="p-3 text-slate-500 align-top leading-relaxed">{{ kpi.indicator }}</td>
-              <td class="p-3 text-slate-600 leading-relaxed align-top">
-                <div class="bg-slate-50 p-2.5 rounded border border-slate-100 whitespace-pre-line text-[11px]">{{ kpi.criteria }}</div>
-              </td>
-              <td class="p-3 text-center align-top pt-3">
-                <input type="number" min="0" :max="kpi.maxScore" v-model.number="kpi.score"
-                  class="w-20 p-2 border rounded-lg text-center font-bold text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  :class="kpi.score > kpi.maxScore ? 'border-rose-500 bg-rose-50' : 'border-slate-300 bg-white'">
-                <span class="block text-[10px] text-slate-400 mt-1">เต็ม {{ kpi.maxScore }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="p-4 border-t bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-        <textarea v-model="evaluatorFeedback" placeholder="ความคิดเห็นเพิ่มเติมของผู้ประเมิน..." class="w-full md:w-2/3 p-2 border rounded-lg text-xs"></textarea>
-        <button @click="submitEvaluationToReport" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs shadow-md transition">
-          ✅ ยืนยันผลการประเมิน (ส่งข้อมูลเข้ารายงาน)
-        </button>
-      </div>
-    </div>
-  </main>
-
-  <!-- ==========================================
-       VIEW 5: REPORT
-       ========================================== -->
-  <main v-if="currentView === 'report'" class="space-y-6">
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
-      <div>
-        <h2 class="text-lg font-bold text-slate-800">📊 หน้ารายงานผลการประเมิน KPI รายบุคคล (แบบละเอียด)</h2>
-        <p class="text-xs text-slate-500">ผลคะแนนเชื่อมต่อพร้อมนำเสนอผู้บริหาร</p>
-      </div>
-      <button @click="copyLineSummary" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm flex items-center gap-1">
-        📲 สรุปส่ง LINE ผู้บริหาร
-      </button>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-xs text-slate-400">ผู้ถูกประเมิน</p><p class="text-lg font-bold text-slate-800">{{ adminData.empName }} ({{ adminData.empId }})</p></div>
-      <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-xs text-slate-400">คะแนนรวมที่ได้</p><p class="text-2xl font-bold text-blue-600">{{ totalEarnedScore }} / {{ maxPossibleScore }} ({{ calculatedPercentage }}%)</p></div>
-      <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-xs text-slate-400">เกรดผลงาน</p><p class="text-2xl font-bold text-emerald-600">Grade {{ calculatedGrade }}</p></div>
-    </div>
-  </main>
-
-  <!-- MODAL: แชร์ลิงก์สำหรับผู้ประเมิน -->
-  <div v-if="showLinkModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-xl">
-      <h3 class="font-bold text-slate-800 text-base">🔗 ลิงก์สำหรับผู้บังคับบัญชาเข้าประเมิน</h3>
-      <p class="text-xs text-slate-500">คัดลอกลิงก์นี้ส่งทาง LINE หรือ Email เพื่อให้ผู้บังคับบัญชาเปิดประเมินได้ทันที:</p>
-      <input type="text" readonly :value="generatedLinkUrl" class="w-full p-2.5 border rounded-lg bg-slate-50 text-xs font-mono select-all">
-      <div class="flex justify-end gap-2">
-        <button @click="showLinkModal = false" class="px-4 py-2 border rounded-lg text-xs">ปิด</button>
-        <button @click="copyLinkText" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">📋 คัดลอกลิงก์</button>
-      </div>
-    </div>
+<header>
+  <div class="brand">
+    <span class="mark">CATC</span>
+    <h1>AI Human Capital Platform</h1>
+    <span class="sub">v0.1 · executive view</span>
   </div>
+  <nav class="modules">
+    <button class="active" data-page="overview">Overview</button>
+    <button data-page="workforce">Workforce</button>
+    <button data-page="talent">Talent</button>
+    <button data-page="learning">Learning</button>
+    <button data-page="performance">Performance</button>
+    <button data-page="leadership">Leadership</button>
+  </nav>
+</header>
 
-  <!-- VIEW FULL PROFILE MODAL (35 Fields) -->
-  <div v-if="showProfileModal && selectedEmpProfile" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl">
-      <div class="flex justify-between items-start border-b pb-4">
-        <div>
-          <span class="px-2.5 py-1 bg-purple-100 text-purple-800 rounded-md font-mono text-xs font-bold">{{ selectedEmpProfile.empId }}</span>
-          <h3 class="text-xl font-bold text-slate-800 mt-1">{{ selectedEmpProfile.empNameTh }} ({{ selectedEmpProfile.nicknameTh }})</h3>
-          <p class="text-xs text-slate-500">{{ selectedEmpProfile.empNameEn }}</p>
-        </div>
-        <button @click="showProfileModal = false" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">✕</button>
-      </div>
+<div class="page active" id="page-overview">
 
-      <div>
-        <h4 class="font-bold text-xs text-indigo-700 uppercase tracking-wider mb-2 border-l-4 border-indigo-600 pl-2">1. ข้อมูลการทำงานและตำแหน่ง</h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <div><span class="text-slate-400 block">ตำแหน่ง:</span><span class="font-semibold">{{ selectedEmpProfile.position }}</span></div>
-          <div><span class="text-slate-400 block">เลเวล (Level):</span><span class="font-semibold">{{ selectedEmpProfile.level || '-' }}</span></div>
-          <div><span class="text-slate-400 block">แผนก / หน่วยงาน:</span><span class="font-semibold">{{ selectedEmpProfile.department }}</span></div>
-          <div><span class="text-slate-400 block">ประเภทพนักงาน:</span><span class="font-semibold">{{ selectedEmpProfile.employmentType }}</span></div>
-          <div><span class="text-slate-400 block">สถานะการทำงาน:</span><span class="font-semibold text-emerald-600">{{ selectedEmpProfile.workStatus }}</span></div>
-          <div><span class="text-slate-400 block">วันที่เริ่มงาน:</span><span class="font-semibold">{{ selectedEmpProfile.startDate }}</span></div>
-          <div><span class="text-slate-400 block">อายุงาน:</span><span class="font-semibold">{{ selectedEmpProfile.tenure || '-' }}</span></div>
-        </div>
-      </div>
-
-      <div>
-        <h4 class="font-bold text-xs text-indigo-700 uppercase tracking-wider mb-2 border-l-4 border-indigo-600 pl-2">2. ข้อมูลส่วนบุคคลและหลักฐานราชการ</h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <div><span class="text-slate-400 block">เพศ:</span><span class="font-semibold">{{ selectedEmpProfile.gender }}</span></div>
-          <div><span class="text-slate-400 block">วันเดือนปีเกิด:</span><span class="font-semibold">{{ selectedEmpProfile.birthDate }}</span></div>
-          <div><span class="text-slate-400 block">อายุ:</span><span class="font-semibold">{{ selectedEmpProfile.age }} ปี</span></div>
-          <div><span class="text-slate-400 block">กรุ๊ปเลือด:</span><span class="font-semibold">{{ selectedEmpProfile.bloodGroup || '-' }}</span></div>
-          <div><span class="text-slate-400 block">ส่วนสูง/น้ำหนัก:</span><span class="font-semibold">{{ selectedEmpProfile.height }} ซม. / {{ selectedEmpProfile.weight }} กก.</span></div>
-          <div><span class="text-slate-400 block">สัญชาติ / เชื้อชาติ:</span><span class="font-semibold">{{ selectedEmpProfile.nationality }} / {{ selectedEmpProfile.race }}</span></div>
-          <div><span class="text-slate-400 block">เลขประจำตัวประชาชน:</span><span class="font-mono font-bold">{{ selectedEmpProfile.idCardNumber }}</span></div>
-          <div><span class="text-slate-400 block">สถานที่ออกบัตร:</span><span class="font-semibold">{{ selectedEmpProfile.idCardIssuePlace || '-' }}</span></div>
-        </div>
-      </div>
-
-      <div>
-        <h4 class="font-bold text-xs text-indigo-700 uppercase tracking-wider mb-2 border-l-4 border-indigo-600 pl-2">3. ที่อยู่ การติดต่อ และสิทธิประโยชน์</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <div><span class="text-slate-400 block">ที่อยู่ปัจจุบัน:</span><span class="font-semibold">{{ selectedEmpProfile.currentAddress || '-' }}</span></div>
-          <div><span class="text-slate-400 block">ที่อยู่ตามทะเบียนบ้าน:</span><span class="font-semibold">{{ selectedEmpProfile.registeredAddress || '-' }}</span></div>
-          <div><span class="text-slate-400 block">เบอร์โทรศัพท์พนักงาน:</span><span class="font-mono font-bold text-blue-600">{{ selectedEmpProfile.phone || '-' }}</span></div>
-          <div><span class="text-slate-400 block">โรงพยาบาลประกันสังคม:</span><span class="font-semibold text-emerald-700">{{ selectedEmpProfile.socialSecurityHospital || '-' }}</span></div>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2 border-t">
-        <button @click="showProfileModal = false" class="px-4 py-2 border rounded-lg text-xs">ปิด</button>
-        <button @click="selectEmployeeForEvaluation(selectedEmpProfile); showProfileModal = false;" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">
-          ⚙️ ไปตั้งค่า KPI ของพนักงานท่านนี้
-        </button>
-      </div>
-    </div>
-  </div>
-
+<div class="kpi-strip">
+  <div class="kpi ok"><div class="bar"></div><div class="num">500</div><div class="label">บุคลากรทั้งหมด</div></div>
+  <div class="kpi ok"><div class="bar"></div><div class="num">92%</div><div class="label">กำลังคนเพียงพอ</div></div>
+  <div class="kpi warn"><div class="bar"></div><div class="num">8</div><div class="label">Critical Position เสี่ยง</div></div>
+  <div class="kpi bad"><div class="bar"></div><div class="num">15%</div><div class="label">Competency Gap</div></div>
+  <div class="kpi ok"><div class="bar"></div><div class="num">78%</div><div class="label">Successor Ready</div></div>
+  <div class="kpi warn"><div class="bar"></div><div class="num">72%</div><div class="label">Engagement</div></div>
 </div>
 
+<div class="section-head"><span class="tag">01</span><h2>AI Engine — 5 โมดูลป้อนเข้า HR AI Assistant</h2></div>
+
+<div class="engine-wrap">
+  <div class="engine" id="engine">
+    <svg class="wires" viewBox="0 0 820 400" preserveAspectRatio="none">
+      <path d="M 70 55 C 200 55, 300 140, 375 175" />
+      <path d="M 235 30 C 300 60, 340 120, 385 165" />
+      <path d="M 410 0 L 410 165" />
+      <path d="M 585 30 C 520 60, 480 120, 435 165" />
+      <path d="M 750 55 C 620 55, 520 140, 445 175" />
+      <path d="M 410 235 L 410 300" />
+    </svg>
+    <div class="node n1" data-key="workforce">
+      <div class="n-title">Workforce AI</div>
+      <div class="n-sub">คาดการณ์กำลังคน</div>
+    </div>
+    <div class="node n2" data-key="talent">
+      <div class="n-title">Talent AI</div>
+      <div class="n-sub">Competency · Successor</div>
+    </div>
+    <div class="node n5" data-key="learning">
+      <div class="n-title">Learning AI</div>
+      <div class="n-sub">Learning Path รายบุคคล</div>
+    </div>
+    <div class="node n3" data-key="performance">
+      <div class="n-title">Performance AI</div>
+      <div class="n-sub">KPI · แนวโน้มความเสี่ยง</div>
+    </div>
+    <div class="node n4" data-key="leadership">
+      <div class="n-title">Leadership AI</div>
+      <div class="n-sub">Engagement · Team</div>
+    </div>
+    <div class="hub">
+      <div class="t1">AI ENGINE</div>
+      <div class="t2">Predict · Analyze<br>Recommend · Automate</div>
+    </div>
+    <div class="assistant-row">
+      <div class="assistant" data-key="assistant">
+        <div class="n-title">🤖 HR AI Assistant</div>
+        <div class="n-sub">chatbot สำหรับพนักงานและ HR</div>
+      </div>
+    </div>
+  </div>
+  <div class="node-detail" id="nodeDetail"></div>
+</div>
+
+<div class="section-head"><span class="tag">02</span><h2>Ask AI</h2></div>
+
+<div class="console">
+  <div class="console-head">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="title">ask-ai · workforce-risk-engine</span>
+  </div>
+  <div class="console-body">
+    <div class="presets">
+      <button data-key="risk3y" data-q="อีก 3 ปี สถาบันมีความเสี่ยงด้านกำลังคนตรงไหน?">อีก 3 ปี สถาบันมีความเสี่ยงด้านกำลังคนตรงไหน?</button>
+      <button data-key="successor" data-q="ตำแหน่งไหนควรทำ Successor Plan ก่อน?">ตำแหน่งไหนควรทำ Successor Plan ก่อน?</button>
+      <button data-key="engagement" data-q="สาขาไหน Engagement ต่ำสุด?">สาขาไหน Engagement ต่ำสุด?</button>
+    </div>
+    <div class="prompt-line" id="promptLine"><span class="prefix">&gt;</span><span class="caret"></span></div>
+    <div class="answer" id="answer"></div>
+  </div>
+</div>
+
+</div><!-- /page-overview -->
+
+<!-- ============ WORKFORCE AI ============ -->
+<div class="page" id="page-workforce">
+  <div class="section-head"><span class="tag">WF</span><h2>Workforce AI — คาดการณ์กำลังคน</h2></div>
+  <div class="stat-row">
+    <div class="s"><div class="sv">500</div><div class="sl">พนักงานปัจจุบัน</div></div>
+    <div class="s"><div class="sv" style="color:var(--amber)">34</div><div class="sl">เกษียณใน 3 ปีข้างหน้า</div></div>
+    <div class="s"><div class="sv" style="color:var(--red)">8</div><div class="sl">Critical Position เสี่ยง</div></div>
+    <div class="s"><div class="sv" style="color:var(--green)">92%</div><div class="sl">กำลังคนเพียงพอ</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>แนวโน้มกำลังคน 2567–2572</h3>
+      <div class="p-sub">actual vs. forecast (รวมผลเกษียณ + ลาออกเฉลี่ย)</div>
+      <div class="chart-box"><canvas id="chartWorkforce"></canvas></div>
+    </div>
+    <div class="panel">
+      <h3>สัดส่วนความเสี่ยงกำลังคนรายฝ่าย</h3>
+      <div class="p-sub">% ตำแหน่งที่มีความเสี่ยงขาดคน</div>
+      <div class="chart-box"><canvas id="chartWorkforceDept"></canvas></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>ตำแหน่งวิกฤต — เรียงตามความเร่งด่วน</h3>
+    <div class="p-sub">อ้างอิงอายุงาน อัตราเกษียณ และจำนวนผู้สืบทอดที่พร้อม</div>
+    <table class="data-table">
+      <thead><tr><th>ตำแหน่ง</th><th>สาขา</th><th>เกษียณใน</th><th>Successor พร้อม</th><th>ระดับความเสี่ยง</th></tr></thead>
+      <tbody>
+        <tr><td class="strong">ผู้เชี่ยวชาญด้าน A</td><td>75</td><td>0–12 เดือน</td><td>0 / 2</td><td><span class="pill high">สูง</span></td></tr>
+        <tr><td class="strong">หัวหน้าแผนกซ่อมบำรุง</td><td>BK</td><td>0–18 เดือน</td><td>1 / 2</td><td><span class="pill high">สูง</span></td></tr>
+        <tr><td class="strong">ผู้จัดการฝ่ายปฏิบัติการ</td><td>PK</td><td>12–24 เดือน</td><td>1 / 1</td><td><span class="pill mid">ปานกลาง</span></td></tr>
+        <tr><td class="strong">หัวหน้าครูฝึก</td><td>NTS</td><td>24–36 เดือน</td><td>2 / 2</td><td><span class="pill low">ต่ำ</span></td></tr>
+        <tr><td class="strong">ผู้เชี่ยวชาญความปลอดภัย</td><td>SM</td><td>0–12 เดือน</td><td>0 / 1</td><td><span class="pill high">สูง</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ TALENT AI ============ -->
+<div class="page" id="page-talent">
+  <div class="section-head"><span class="tag">TL</span><h2>Talent AI — Competency &amp; Successor</h2></div>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>Competency Gap รายฝ่าย</h3>
+      <div class="p-sub">ค่าเฉลี่ย gap ระหว่างระดับที่ต้องการกับระดับปัจจุบัน</div>
+      <div class="chart-box"><canvas id="chartCompetency"></canvas></div>
+    </div>
+    <div class="panel">
+      <h3>Successor Readiness ภาพรวม</h3>
+      <div class="p-sub">สัดส่วนตำแหน่งวิกฤตที่มีผู้สืบทอดตามระดับความพร้อม</div>
+      <div class="chart-box"><canvas id="chartSuccessor"></canvas></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Successor Pipeline — ตำแหน่งวิกฤต</h3>
+    <table class="data-table">
+      <thead><tr><th>ตำแหน่ง</th><th>ผู้สืบทอด</th><th>Readiness</th><th>คาดว่าพร้อม</th></tr></thead>
+      <tbody>
+        <tr><td class="strong">ผู้เชี่ยวชาญด้าน A</td><td>ยังไม่ระบุ</td><td><div class="progress"><span style="width:0%"></span></div></td><td>—</td></tr>
+        <tr><td class="strong">หัวหน้าแผนกซ่อมบำรุง</td><td>คุณสมชาย ว.</td><td><div class="progress"><span style="width:65%"></span></div></td><td>Q3 / 2570</td></tr>
+        <tr><td class="strong">ผู้จัดการฝ่ายปฏิบัติการ</td><td>คุณกาญจนา พ.</td><td><div class="progress"><span style="width:85%"></span></div></td><td>Q1 / 2570</td></tr>
+        <tr><td class="strong">หัวหน้าครูฝึก</td><td>คุณวิชัย ส.</td><td><div class="progress"><span style="width:92%"></span></div></td><td>พร้อมแล้ว</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ LEARNING AI ============ -->
+<div class="page" id="page-learning">
+  <div class="section-head"><span class="tag">LN</span><h2>Learning AI — Learning Path รายบุคคล</h2></div>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>Learning Path ที่แนะนำ — เรียงตาม Gap</h3>
+      <div class="p-sub">สร้างอัตโนมัติจากผลวิเคราะห์ Competency Gap</div>
+      <div class="path-card">
+        <div class="path-top"><span class="p-name">Safety Management Advanced</span><span class="p-gap">gap 32% · ตำแหน่ง B</span></div>
+        <div class="path-desc">5 โมดูล · เน้นกรณีศึกษาและการประเมินภาคปฏิบัติ</div>
+        <div class="path-progress-row"><div class="progress"><span style="width:20%"></span></div><span class="pct">20%</span></div>
+      </div>
+      <div class="path-card">
+        <div class="path-top"><span class="p-name">Maintenance Leadership Track</span><span class="p-gap">gap 24% · หัวหน้าแผนกซ่อมบำรุง</span></div>
+        <div class="path-desc">4 โมดูล · โค้ชชิ่งรายบุคคลควบคู่การอบรม</div>
+        <div class="path-progress-row"><div class="progress"><span style="width:55%"></span></div><span class="pct">55%</span></div>
+      </div>
+      <div class="path-card">
+        <div class="path-top"><span class="p-name">Instructor Skills Refresh</span><span class="p-gap">gap 12% · หัวหน้าครูฝึก</span></div>
+        <div class="path-desc">3 โมดูล · เน้นเทคนิคการสอนยุคใหม่</div>
+        <div class="path-progress-row"><div class="progress"><span style="width:78%"></span></div><span class="pct">78%</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>ความคืบหน้าการอบรมทั้งองค์กร</h3>
+      <div class="p-sub">สถานะผู้เรียนในไตรมาสนี้</div>
+      <div class="chart-box"><canvas id="chartLearning"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PERFORMANCE AI ============ -->
+<div class="page" id="page-performance">
+  <div class="section-head"><span class="tag">PF</span><h2>Performance &amp; Safety AI</h2></div>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>แนวโน้มคะแนนผลปฏิบัติงานเฉลี่ย</h3>
+      <div class="p-sub">รายไตรมาส เทียบเป้าหมายองค์กร</div>
+      <div class="chart-box"><canvas id="chartPerformance"></canvas></div>
+    </div>
+    <div class="panel">
+      <h3>Risk Heatmap รายฝ่าย</h3>
+      <div class="p-sub">ระดับความเสี่ยงรวม (กำลังคน · competency · ความปลอดภัย)</div>
+      <div id="heatmapWrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LEADERSHIP AI ============ -->
+<div class="page" id="page-leadership">
+  <div class="section-head"><span class="tag">LD</span><h2>Leadership &amp; Team AI</h2></div>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>Engagement Score รายสาขา</h3>
+      <div class="p-sub">คะแนนเต็ม 100 · สำรวจล่าสุดไตรมาสนี้</div>
+      <div class="chart-box"><canvas id="chartEngagement"></canvas></div>
+    </div>
+    <div class="panel">
+      <h3>ข้อสังเกตด้านภาวะผู้นำ</h3>
+      <div class="p-sub">จากผลสำรวจ 360° และ 1-on-1 ล่าสุด</div>
+      <table class="data-table">
+        <thead><tr><th>สาขา</th><th>ประเด็น</th><th>ระดับ</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">SM</td><td>Engagement ต่ำสุดในเครือ ต่อเนื่อง 2 ไตรมาส</td><td><span class="pill high">สูง</span></td></tr>
+          <tr><td class="strong">BK</td><td>ผู้จัดการใหม่ยังไม่ผ่านช่วงปรับตัว</td><td><span class="pill mid">ปานกลาง</span></td></tr>
+          <tr><td class="strong">75</td><td>ทีมมี Feedback loop สม่ำเสมอ ผลดี</td><td><span class="pill low">ต่ำ</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-tag" id="modalTag">PLAN</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <h3 id="modalTitle"></h3>
+    <div class="modal-meta" id="modalMeta"></div>
+    <div class="modal-steps" id="modalSteps"></div>
+  </div>
+</div>
+
+<footer>CATC AI HUMAN CAPITAL PLATFORM — prototype · ข้อมูลตัวอย่างเพื่อสาธิต</footer>
+
 <script>
-  const { createApp, ref, computed, onMounted, nextTick } = Vue;
+  const details = {
+    workforce: '<b>Workforce AI</b> — คาดการณ์กำลังคนล่วงหน้า วิเคราะห์อัตราเกษียณ อัตราลาออก และช่องว่างกำลังคนรายตำแหน่ง',
+    talent: '<b>Talent AI</b> — ฐานข้อมูล Talent, Competency Matrix และแผน Successor รายตำแหน่งวิกฤต',
+    learning: '<b>Learning AI</b> — แนะนำ Learning Path รายบุคคลตาม Competency Gap ที่พบ',
+    performance: '<b>Performance & Safety AI</b> — Dashboard KPI พร้อมวิเคราะห์แนวโน้มและความเสี่ยงด้านความปลอดภัย',
+    leadership: '<b>Leadership & Team AI</b> — วิเคราะห์ภาวะผู้นำ Engagement และพลวัตทีม',
+    assistant: '<b>HR AI Assistant</b> — ผู้ช่วย HR แบบสนทนา สำหรับพนักงานสอบถามสิทธิ์การลา และสำหรับ HR สรุปข้อมูลด่วน'
+  };
+  const nodeDetail = document.getElementById('nodeDetail');
+  document.querySelectorAll('.node, .assistant').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const key = el.dataset.key;
+      nodeDetail.innerHTML = details[key];
+      nodeDetail.classList.add('show');
+    });
+  });
 
-  createApp({
-    setup() {
-      const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwcp1sdUdjqOwUJ2p4e_xuTyaYOp8i6ZB1fflYP5zG4TyPUgH2OHGKn3tB4gg7z5jgZ/exec';
+  const promptLine = document.getElementById('promptLine');
+  const answerBox = document.getElementById('answer');
 
-      const currentView = ref('overview');
-      const isSyncing = ref(false);
-      const employeeList = ref([]);
-      const showProfileModal = ref(false);
-      const selectedEmpProfile = ref(null);
-      const showLinkModal = ref(false);
-      const generatedLinkUrl = ref('');
-      const currentDate = ref('24/08/2026');
-      const evaluatorName = ref('');
-      const evaluatorFeedback = ref('');
-
-      const filterCompany = ref('');
-      const filterDepartment = ref('');
-      const filterStatus = ref('');
-      const empSearchQuery = ref('');
-
-      // Master KPI Template 7 หัวข้อจริงตามระบบ
-      const defaultKpis = [
-        {
-          task: 'ประสิทธิภาพการบริหารอาคารและสาธารณูปโภค (Facilities Management)',
-          target: 'ระบบและอุปกรณ์พร้อมใช้งานไม่น้อยกว่า 98%',
-          indicator: 'ความพร้อมใช้งานของอาคาร ระบบสาธารณูปโภค และสิ่งอำนวยความสะดวก',
-          criteria: '10 คะแนน : พร้อมใช้งานตลอดเดือน\n9 คะแนน : ขัดข้อง 1 ครั้ง/เดือน\n8 คะแนน : ขัดข้อง 2 ครั้ง\n7 คะแนน : ขัดข้อง 3 ครั้ง\n6 คะแนน : ขัดข้อง 4 ครั้ง\n5 คะแนน : ขัดข้อง 5 ครั้ง\n4 คะแนน : ขัดข้อง 6 ครั้ง\n3 คะแนน : ขัดข้อง 7 ครั้ง\n2 คะแนน : ขัดข้อง 8 ครั้ง\n0 คะแนน : ขัดข้องตั้งแต่ 9 ครั้งขึ้นไป',
-          maxScore: 10,
-          score: 0
-        },
-        {
-          task: 'การบริหารแผนซ่อมบำรุงเชิงป้องกัน (Preventive Maintenance Management)',
-          target: 'เครื่องจักรและอาคารได้รับการบำรุงรักษาตามแผน ไม่เกิดงานเสียซ้ำ',
-          indicator: 'การวางแผน PM การติดตามงาน และผลการดำเนินงาน',
-          criteria: '10 คะแนน = วางแผน PM ครบ ติดตามครบ ไม่พบค้าง ไม่เกิด Breakdown\n8 คะแนน = มีตกค้างเล็กน้อย ไม่กระทบการใช้งาน\n6 คะแนน = PM ล่าช้า หรือพบงานเสียซ้ำ 1 ครั้ง\n4 คะแนน = ตกค้างหลายรายการ หรือ Breakdown 2 ครั้ง\n2 คะแนน = ไม่เป็นไปตามแผน กระทบต่อการใช้งาน\n0 คะแนน = ไม่มีการควบคุมแผน PM หรือเสียหายรุนแรง',
-          maxScore: 10,
-          score: 0
-        },
-        {
-          task: 'การบริหารทีมงานและการพัฒนาบุคลากร (Team Management & Development)',
-          target: 'ทีมงานปฏิบัติงานได้ตามมาตรฐานและพัฒนาศักยภาพอย่างต่อเนื่อง',
-          indicator: 'การวางแผนงาน การมอบหมายงาน การติดตาม และการพัฒนาทีม',
-          criteria: '10 คะแนน = วางแผนชัดเจน มอบหมายเหมาะสม ทีมทำงานได้เอง มีโค้ชทีม\n8 คะแนน = ทีมทำงานได้ตามแผน มีข้อผิดพลาดเล็กน้อย\n6 คะแนน = ต้องติดตามงานบ่อย หรือพบข้อผิดพลาดบางครั้ง\n4 คะแนน = ทีมทำงานไม่เป็นระบบ ส่งงานล่าช้า\n2 คะแนน = บริหารทีมไม่ได้ เกิดข้อร้องเรียนหลายครั้ง\n0 คะแนน = ทีมไม่สามารถดำเนินงานได้ตามเป้าหมาย',
-          maxScore: 10,
-          score: 0
-        },
-        {
-          task: 'การบริหารความปลอดภัยของอาคาร (Building Safety Management)',
-          target: 'อาคารมีความปลอดภัย พร้อมใช้งาน และลดความเสี่ยง',
-          indicator: 'การตรวจความปลอดภัย การแก้ไขความเสี่ยง และการควบคุมเหตุการณ์',
-          criteria: '10 คะแนน = ตรวจครบ แก้ไขความเสี่ยงทันที ไม่เกิดอุบัติเหตุ\n8 คะแนน = พบความเสี่ยงเล็กน้อย แก้ไขได้ทันเวลา\n6 คะแนน = พบข้อบกพร่องที่ต้องติดตามแก้ไข\n4 คะแนน = พบข้อบกพร่องหลายจุด หรือเกิดเหตุเล็กน้อย\n2 คะแนน = เกิดเหตุกระทบการทำงานจากการละเลย\n0 คะแนน = เกิดอุบัติเหตุร้ายแรงหรือความเสียหายจากการบริหาร',
-          maxScore: 10,
-          score: 0
-        },
-        {
-          task: 'การควบคุมค่าใช้จ่ายด้านอาคาร (Facilities Cost Management)',
-          target: 'ควบคุมค่าใช้จ่ายให้อยู่ในงบประมาณ และบริหารการใช้ทรัพยากรอย่างคุ้มค่า',
-          indicator: 'ผลการบริหารงบประมาณและการอนุมัติค่าใช้จ่าย',
-          criteria: '10 คะแนน = คุมงบได้ตามเป้า ไม่มีเกิน มีแนวทางลดต้นทุนอย่างน้อย 1 โครงการ\n8 คะแนน = อยู่ในงบ มีเกินเล็กน้อยแต่ได้รับอนุมัติล่วงหน้า\n6 คะแนน = มีเกินงบบางรายการ พร้อมชี้แจงเหตุผลได้\n4 คะแนน = เกินงบหลายรายการ หรือคุมงบได้ไม่ดี\n2 คะแนน = เกินงบจนกระทบแผนงาน\n0 คะแนน = ไม่สามารถคุมงบได้ หรือมีค่าใช้จ่ายไม่ได้รับอนุมัติ',
-          maxScore: 10,
-          score: 0
-        },
-        {
-          task: 'การบริหารผู้รับเหมา (Contractor Management)',
-          target: 'ผู้รับเหมาปฏิบัติงานได้ตามมาตรฐาน คุณภาพ และกำหนดเวลา',
-          indicator: 'คุณภาพงาน การควบคุมผู้รับเหมา และการส่งมอบงาน',
-          criteria: '10 คะแนน = ส่งมอบตรงเวลา คุณภาพผ่าน ไม่มีแก้ไข ไม่มีข้อร้องเรียน\n8 คะแนน = มีแก้ไขเล็กน้อย ส่งมอบได้ตามกำหนด\n6 คะแนน = ส่งมอบล่าช้าเล็กน้อย หรือแก้ไขบางส่วน\n4 คะแนน = ล่าช้าหลายครั้ง หรือคุณภาพไม่ได้มาตรฐาน\n2 คะแนน = ทำงานผิดมาตรฐาน กระทบต่อการดำเนินงาน\n0 คะแนน = ไม่สามารถควบคุมได้ งานล่าช้าหรือเกิดความเสียหาย',
-          maxScore: 10,
-          score: 0
-        },
-        {
-          task: 'ความพึงพอใจของผู้ใช้อาคาร (User Satisfaction)',
-          target: 'ผู้ใช้อาคารได้รับบริการที่รวดเร็ว สุภาพ และมีคุณภาพ',
-          indicator: 'ผลการให้บริการ ข้อร้องเรียน และการติดตามแก้ไข',
-          criteria: '10 คะแนน = ไม่มีข้อร้องเรียน ได้รับคำชื่นชม ติดตามงานครบทุกเรื่อง\n8 คะแนน = มีข้อร้องเรียนเล็กน้อย แก้ไขได้ทันที\n6 คะแนน = มีข้อร้องเรียนเป็นครั้งคราว ต้องติดตามแก้ไข\n4 คะแนน = มีข้อร้องเรียนหลายครั้ง หรือแก้ไขล่าช้า\n2 คะแนน = มีข้อร้องเรียนซ้ำจากสาเหตุเดิม กระทบการทำงาน\n0 คะแนน = ไม่สามารถแก้ไขปัญหาได้ หรือมีข้อร้องเรียนรุนแรง',
-          maxScore: 10,
-          score: 0
-        }
-      ];
-
-      const adminData = ref({
-        empId: '0426015',
-        empName: 'นาย สิทธา ตังตระกูล',
-        position: 'หัวหน้าอาคารเเละสถานที่',
-        department: 'อาคารและสถานที่',
-        company: '',
-        kpis: JSON.parse(JSON.stringify(defaultKpis))
-      });
-
-      const addKpiRow = () => {
-        adminData.value.kpis.push({
-          task: 'งานที่ได้รับมอบหมายเพิ่มเติม',
-          target: 'สำเร็จตามเป้าหมาย',
-          indicator: 'ความถูกต้องและทันเวลา',
-          criteria: '10 คะแนน = ดีเยี่ยม\n5 คะแนน = ปานกลาง\n0 คะแนน = ล่าช้า',
-          maxScore: 10,
-          score: 0
-        });
-      };
-
-      const removeKpiRow = (index) => {
-        adminData.value.kpis.splice(index, 1);
-      };
-
-      const generateEvaluationLink = () => {
-        generatedLinkUrl.value = window.location.href.split('?')[0] + `?evalEmpId=${adminData.value.empId}&view=evaluator`;
-        showLinkModal.value = true;
-      };
-
-      const copyLinkText = () => {
-        navigator.clipboard.writeText(generatedLinkUrl.value).then(() => {
-          alert('คัดลอกลิงก์แบบประเมินเรียบร้อยแล้ว!');
-          showLinkModal.value = false;
-        });
-      };
-
-      const fetchEmployees = async () => {
-        isSyncing.value = true;
-        try {
-          const res = await fetch(WEB_APP_URL);
-          const data = await res.json();
-          
-          if (Array.isArray(data) && data.length > 0) {
-            employeeList.value = data.map(item => {
-              const rawId = item['รหัสพนักงาน'] || '';
-              const cleanId = String(rawId).startsWith('0') ? String(rawId) : String(rawId).padStart(7, '0');
-
-              return {
-                empId: cleanId,
-                gender: String(item['เพศ'] || 'ชาย'),
-                empNameTh: String(item['ชื่อ-นามสกุล (ภาษาไทย)'] || item['ชื่อ-สกุล'] || ''),
-                empNameEn: String(item['ชื่อ-นามสกุล (ภาษาอังกฤษ)'] || ''),
-                nicknameTh: String(item['ชื่อเล่น (ภาษาไทย)'] || item['ชื่อเล่น'] || ''),
-                position: String(item['ตำแหน่ง'] || '-'),
-                level: String(item['เลเวล'] || 'Staff'),
-                department: String(item['แผนก / หน่วยงาน'] || item['แผนก'] || '-'),
-                employmentType: String(item['ประเภทพนักงาน'] || 'รายเดือน'),
-                startDate: String(item['วันที่เริ่มงาน'] || '').split('T')[0],
-                workStatus: String(item['สถานะการทำงาน'] || 'ทำงานอยู่'),
-                tenure: String(item['อายุงาน'] || ''),
-                birthDate: String(item['วันเดือนปีเกิด'] || '').split('T')[0],
-                age: item['อายุ'] || 0,
-                idCardNumber: String(item['เลขประจำตัวประชาชน'] || ''),
-                idCardIssuePlace: String(item['สถานที่ออกบัตรประชาชน'] || ''),
-                nationality: String(item['สัญชาติ'] || 'ไทย'),
-                race: String(item['เชื้อชาติ'] || 'ไทย'),
-                bloodGroup: String(item['กรุ๊ปเลือด'] || 'O'),
-                height: item['ส่วนสูง (ซม.)'] || 0,
-                weight: item['น้ำหนัก (กก.)'] || 0,
-                currentAddress: String(item['ที่อยู่ปัจจุบัน'] || ''),
-                registeredAddress: String(item['ที่อยู่ตามทะเบียนบ้าน'] || ''),
-                phone: String(item['เบอร์โทรศัพท์'] || '-'),
-                socialSecurityHospital: String(item['โรงพยาบาลประกันสังคม'] || '-'),
-                evaluated: false
-              };
-            });
-            renderDashboardCharts();
-          }
-        } catch (error) {
-          console.error('Fetch error:', error);
-        } finally {
-          isSyncing.value = false;
-        }
-      };
-
-      const companyList = computed(() => [...new Set(employeeList.value.map(e => e.company).filter(Boolean))]);
-      const departmentList = computed(() => [...new Set(employeeList.value.map(e => e.department).filter(Boolean))]);
-
-      const filteredEmployees = computed(() => {
-        return employeeList.value.filter(emp => {
-          const q = empSearchQuery.value.trim().toLowerCase();
-          const matchQuery = !q || emp.empId.toLowerCase().includes(q) || emp.empNameTh.toLowerCase().includes(q);
-          const matchDept = !filterDepartment.value || emp.department === filterDepartment.value;
-          const matchStatus = !filterStatus.value || emp.workStatus === filterStatus.value;
-          return matchQuery && matchDept && matchStatus;
-        });
-      });
-
-      const maxPossibleScore = computed(() => adminData.value.kpis.reduce((sum, item) => sum + (Number(item.maxScore) || 0), 0));
-      const totalEarnedScore = computed(() => adminData.value.kpis.reduce((sum, item) => sum + (Number(item.score) || 0), 0));
-      const calculatedPercentage = computed(() => maxPossibleScore.value ? ((totalEarnedScore.value / maxPossibleScore.value) * 100).toFixed(1) : 0);
-      const calculatedGrade = computed(() => {
-        const p = Number(calculatedPercentage.value);
-        if (p >= 90) return 'A';
-        if (p >= 80) return 'B';
-        if (p >= 70) return 'C';
-        return 'D';
-      });
-
-      const gradeBadgeClass = computed(() => {
-        const g = calculatedGrade.value;
-        if (g === 'A') return 'bg-emerald-600 text-white';
-        if (g === 'B') return 'bg-blue-600 text-white';
-        if (g === 'C') return 'bg-amber-600 text-white';
-        return 'bg-rose-600 text-white';
-      });
-
-      const evaluatedCount = computed(() => employeeList.value.filter(e => e.evaluated).length);
-      const pendingEvalCount = computed(() => employeeList.value.filter(e => !e.evaluated).length);
-      const evalProgressPercent = computed(() => employeeList.value.length ? ((evaluatedCount.value / employeeList.value.length) * 100).toFixed(0) : 0);
-      const avgOrgScore = computed(() => '88.5');
-
-      const viewFullProfile = (emp) => {
-        selectedEmpProfile.value = emp;
-        showProfileModal.value = true;
-      };
-
-      const selectEmployeeForEvaluation = (emp) => {
-        adminData.value.empId = emp.empId;
-        adminData.value.empName = emp.empNameTh;
-        adminData.value.position = emp.position;
-        adminData.value.department = emp.department;
-        switchView('admin');
-      };
-
-      const submitEvaluationToReport = () => {
-        const targetEmp = employeeList.value.find(e => e.empId === adminData.value.empId);
-        if (targetEmp) targetEmp.evaluated = true;
-        alert('บันทึกผลการประเมินเรียบร้อยแล้ว!');
-        switchView('report');
-      };
-
-      const copyLineSummary = () => {
-        const text = `เรียน ผู้บริหาร
-📊 **รายงานผลการประเมิน KPI รายบุคคล**
-• **ผู้ถูกประเมิน:** [${adminData.value.empId}] ${adminData.value.empName}
-• **ตำแหน่ง:** ${adminData.value.position} (${adminData.value.department})
-
-🎯 **สรุปคะแนน:**
-• คะแนนเต็ม: ${maxPossibleScore.value} คะแนน
-• ได้คะแนนจริง: ${totalEarnedScore.value} คะแนน
-• คิดเป็น: ${calculatedPercentage.value}%
-• **ผลการประเมิน:** Grade ${calculatedGrade.value}
-
-📝 **ข้อคิดเห็นเพิ่มเติม:** ${evaluatorFeedback.value || 'ไม่มี'}
-📢 จึงเรียนมาเพื่อโปรดทราบค่ะ`;
-
-        navigator.clipboard.writeText(text).then(() => {
-          alert('คัดลอกข้อความสรุปผลส่ง LINE เรียบร้อยแล้ว!');
-        });
-      };
-
-      let gradeChartInstance = null;
-      let deptChartInstance = null;
-
-      const renderDashboardCharts = () => {
-        nextTick(() => {
-          const gradeCtx = document.getElementById('gradeChart');
-          const deptCtx = document.getElementById('deptChart');
-
-          if (gradeCtx) {
-            if (gradeChartInstance) gradeChartInstance.destroy();
-            gradeChartInstance = new Chart(gradeCtx, {
-              type: 'doughnut',
-              data: {
-                labels: ['Grade A', 'Grade B', 'Grade C', 'Grade D'],
-                datasets: [{ data: [15, 60, 20, 5], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'], borderWidth: 0 }]
-              },
-              options: { responsive: true, maintainAspectRatio: false }
-            });
-          }
-
-          if (deptCtx) {
-            if (deptChartInstance) deptChartInstance.destroy();
-            deptChartInstance = new Chart(deptCtx, {
-              type: 'bar',
-              data: {
-                labels: ['ฝ่ายขาย', 'อาคารและสถานที่', 'ฝ่ายบุคคล', 'ฝ่ายบัญชี', 'คลังสินค้า'],
-                datasets: [{ label: 'คะแนนเฉลี่ย (%)', data: [92, 88, 85, 90, 84], backgroundColor: '#4f46e5', borderRadius: 6 }]
-              },
-              options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } }
-            });
-          }
-        });
-      };
-
-      const switchView = (v) => {
-        currentView.value = v;
-        if (v === 'overview') renderDashboardCharts();
-      };
-
-      onMounted(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const evalEmpId = urlParams.get('evalEmpId');
-        const view = urlParams.get('view');
-
-        if (view === 'evaluator') {
-          currentView.value = 'evaluator';
-        }
-
-        fetchEmployees();
-      });
-
-      return {
-        currentView,
-        isSyncing,
-        employeeList,
-        filteredEmployees,
-        companyList,
-        departmentList,
-        filterCompany,
-        filterDepartment,
-        filterStatus,
-        empSearchQuery,
-        adminData,
-        showProfileModal,
-        selectedEmpProfile,
-        showLinkModal,
-        generatedLinkUrl,
-        currentDate,
-        evaluatorName,
-        evaluatorFeedback,
-        maxPossibleScore,
-        totalEarnedScore,
-        calculatedPercentage,
-        calculatedGrade,
-        gradeBadgeClass,
-        evaluatedCount,
-        pendingEvalCount,
-        evalProgressPercent,
-        avgOrgScore,
-        switchView,
-        viewFullProfile,
-        selectEmployeeForEvaluation,
-        addKpiRow,
-        removeKpiRow,
-        generateEvaluationLink,
-        copyLinkText,
-        submitEvaluationToReport,
-        copyLineSummary,
-        fetchEmployees
-      };
+  const answers = {
+    risk3y: {
+      risks: [
+        ['high','ผู้เชี่ยวชาญด้าน A — มีผู้เกษียณ 4 คนในช่วง 3 ปีข้างหน้า'],
+        ['high','ตำแหน่ง B — Competency Gap 32%'],
+        ['mid','ตำแหน่ง C — Succession Coverage ต่ำ']
+      ],
+      recs: [
+        ['จัดทำ Successor เพิ่ม 2 คน','successor'],
+        ['Upskill บุคลากร 5 คน','upskill'],
+        ['เตรียม Recruitment Plan ปี 2570','recruit']
+      ]
+    },
+    successor: {
+      risks: [
+        ['high','ผู้เชี่ยวชาญด้าน A (75) — ยังไม่มี Successor เลย (0/2) เกษียณใน 12 เดือน'],
+        ['high','ผู้เชี่ยวชาญความปลอดภัย (SM) — 0/1 พร้อม เกษียณใน 12 เดือน'],
+        ['mid','หัวหน้าแผนกซ่อมบำรุง (BK) — มี Successor 1 คน แต่ Readiness 65%']
+      ],
+      recs: [
+        ['เร่งคัดเลือก Successor ตำแหน่งผู้เชี่ยวชาญด้าน A ภายในไตรมาสนี้','sel_a'],
+        ['จัดทำแผนพัฒนาเร่งรัด ผู้เชี่ยวชาญความปลอดภัย สาขา SM','safety_sm'],
+        ['ติดตาม Readiness ของ Successor สาขา BK ให้ถึง 80% ก่อน Q3/2570','track_bk']
+      ]
+    },
+    engagement: {
+      risks: [
+        ['high','สาขา SM — Engagement 58 คะแนน ต่ำสุดในเครือ ต่อเนื่อง 2 ไตรมาส'],
+        ['mid','สาขา BK — 68 คะแนน ผู้จัดการใหม่ยังอยู่ในช่วงปรับตัว'],
+        ['mid','สาขา 75 / PK / NTS อยู่ในเกณฑ์ดี (75–84 คะแนน) ไม่มีความเสี่ยงเร่งด่วน']
+      ],
+      recs: [
+        ['จัดทำ Focus Group สาขา SM เพื่อหาสาเหตุเชิงลึก','focus_sm'],
+        ['โค้ชผู้จัดการใหม่สาขา BK ต่อเนื่อง 3 เดือน','coach_bk'],
+        ['ทบทวนภาระงาน/ตารางกะสาขา SM ที่อาจกระทบ Engagement','review_sm']
+      ]
     }
-  }).mount('#app');
+  };
+
+  function renderAnswer(key){
+    const a = answers[key];
+    let html = a.risks.map(([sev,text])=>
+      `<div class="risk-item"><span class="sev ${sev}">${sev==='high'?'HIGH':'MED'}</span><span>${text}</span></div>`
+    ).join('');
+    html += '<div class="rec-head">RECOMMENDATION</div>';
+    html += a.recs.map(([text,planKey])=>
+      `<div class="rec"><span>${text}</span><button class="go" data-plan="${planKey}">เปิดแผน →</button></div>`
+    ).join('');
+    answerBox.innerHTML = html;
+  }
+
+  function runQuery(key, q){
+    answerBox.classList.remove('show');
+    promptLine.innerHTML = '<span class="prefix">&gt;</span>' + q + '<span class="caret"></span>';
+    setTimeout(()=>{
+      renderAnswer(key);
+      answerBox.classList.add('show');
+    }, 450);
+  }
+  document.querySelectorAll('.presets button').forEach(btn=>{
+    btn.addEventListener('click', ()=> runQuery(btn.dataset.key, btn.dataset.q));
+  });
+
+  const plans = {
+    successor: {
+      title: 'จัดทำ Successor เพิ่ม 2 คน — ตำแหน่ง B',
+      owner: 'HR Talent Team', due: 'ไตรมาส 1 / 2570', priority: 'สูง',
+      steps: ['ระบุผู้สืบทอดที่มีศักยภาพจาก Talent Pool', 'ประเมิน Readiness Level ของผู้สมัครทั้งสองคน', 'ออกแบบแผนพัฒนาเฉพาะบุคคล (IDP)', 'นำเสนอผู้บริหารเพื่ออนุมัติแผน']
+    },
+    upskill: {
+      title: 'Upskill บุคลากร 5 คน — ปิด Competency Gap',
+      owner: 'Learning & Development', due: 'ไตรมาส 2 / 2570', priority: 'สูง',
+      steps: ['วิเคราะห์ Competency Gap รายบุคคล', 'จับคู่หลักสูตร/Learning Path ที่เหมาะสม', 'จัดตารางอบรมและติดตามผล', 'ประเมินผลหลังอบรม 30-60-90 วัน']
+    },
+    recruit: {
+      title: 'เตรียม Recruitment Plan ปี 2570',
+      owner: 'Recruitment Team', due: 'ไตรมาส 4 / 2569', priority: 'ปานกลาง',
+      steps: ['สรุปตำแหน่งเสี่ยงจากอัตราเกษียณ/ลาออก', 'ตั้งเป้าจำนวนอัตราที่ต้องสรรหาล่วงหน้า', 'วางแผนช่องทางสรรหาต่อสาขา', 'จัดทำงบประมาณและ Timeline สรรหา']
+    },
+    sel_a: {
+      title: 'คัดเลือก Successor — ผู้เชี่ยวชาญด้าน A (75)',
+      owner: 'HR Talent Team', due: 'ภายในไตรมาสนี้', priority: 'สูง',
+      steps: ['เปิดรับสมัครภายในจาก Talent Pool สายงานเดียวกัน', 'สัมภาษณ์และประเมิน Competency เทียบ Job Profile', 'คัดเลือก 2 คนเข้าสู่แผนพัฒนา Successor', 'รายงานผู้บริหารภายในสิ้นไตรมาส']
+    },
+    safety_sm: {
+      title: 'แผนพัฒนาเร่งรัด — ผู้เชี่ยวชาญความปลอดภัย สาขา SM',
+      owner: 'Safety Department', due: '6 เดือน', priority: 'สูง',
+      steps: ['ระบุผู้มีศักยภาพในทีมความปลอดภัยสาขา SM', 'จัดอบรม Certification เร่งรัดคู่ขนานกับงานประจำ', 'ให้ผู้เชี่ยวชาญปัจจุบันเป็นพี่เลี้ยง (mentor) ก่อนเกษียณ', 'ประเมินความพร้อมทุก 2 เดือน']
+    },
+    track_bk: {
+      title: 'ติดตาม Readiness Successor — สาขา BK',
+      owner: 'HR Talent Team', due: 'ก่อน Q3 / 2570', priority: 'ปานกลาง',
+      steps: ['ทบทวนแผนพัฒนาปัจจุบันของคุณสมชาย ว.', 'มอบหมายโปรเจกต์จริงเพื่อประเมินการตัดสินใจระดับหัวหน้าแผนก', 'ประเมิน Readiness ซ้ำทุกไตรมาส', 'ปรับ IDP หากคะแนนไม่ขยับตามเป้า']
+    },
+    focus_sm: {
+      title: 'Focus Group สาขา SM — หาสาเหตุ Engagement ต่ำ',
+      owner: 'HR Business Partner', due: '1 เดือน', priority: 'สูง',
+      steps: ['สุ่มกลุ่มพนักงานตัวแทนแต่ละแผนก 8-10 คน', 'จัดวง Focus Group แบบไม่เปิดเผยชื่อ', 'สรุปประเด็นหลักที่กระทบ Engagement', 'นำเสนอแผนแก้ไขต่อผู้จัดการสาขา']
+    },
+    coach_bk: {
+      title: 'โค้ชผู้จัดการใหม่ — สาขา BK',
+      owner: 'Leadership Development', due: '3 เดือน', priority: 'ปานกลาง',
+      steps: ['จับคู่ผู้จัดการใหม่กับโค้ชภายในองค์กร', 'โค้ชชิ่งรายสัปดาห์ช่วงเดือนแรก', 'ติดตามผล Feedback จากทีมรายเดือน', 'ประเมินผลเมื่อครบ 3 เดือน']
+    },
+    review_sm: {
+      title: 'ทบทวนภาระงาน/ตารางกะ — สาขา SM',
+      owner: 'Operations & HR', due: '6 สัปดาห์', priority: 'ปานกลาง',
+      steps: ['เก็บข้อมูลชั่วโมงทำงานจริงเทียบมาตรฐาน', 'สำรวจความคิดเห็นพนักงานเรื่องตารางกะ', 'ปรับสมดุลภาระงานระหว่างแผนก', 'ติดตามคะแนน Engagement รอบถัดไป']
+    }
+  };
+  const overlay = document.getElementById('modalOverlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalMeta = document.getElementById('modalMeta');
+  const modalSteps = document.getElementById('modalSteps');
+
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.go');
+    if(!btn) return;
+    const p = plans[btn.dataset.plan];
+    if(!p) return;
+    modalTitle.textContent = p.title;
+    modalMeta.innerHTML = `<span>เจ้าของงาน<b>${p.owner}</b></span><span>กำหนดเสร็จ<b>${p.due}</b></span><span>ความสำคัญ<b>${p.priority}</b></span>`;
+    modalSteps.innerHTML = p.steps.map((s,i)=>`<div class="step"><span class="n">${String(i+1).padStart(2,'0')}</span><span>${s}</span></div>`).join('');
+    overlay.classList.add('show');
+  });
+  document.getElementById('modalClose').addEventListener('click', ()=> overlay.classList.remove('show'));
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.classList.remove('show'); });
+
+  /* ---------- tab switching ---------- */
+  const navButtons = document.querySelectorAll('nav.modules button');
+  const pages = document.querySelectorAll('.page');
+  const chartInit = {};
+  navButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      navButtons.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const key = btn.dataset.page;
+      pages.forEach(p=> p.classList.toggle('active', p.id === 'page-'+key));
+      if(chartInit[key]) chartInit[key]();
+    });
+  });
+
+  /* ---------- Chart.js defaults ---------- */
+  Chart.defaults.color = '#8FA3B0';
+  Chart.defaults.font.family = "'Noto Sans Thai', sans-serif";
+  Chart.defaults.font.size = 11;
+  const gridColor = '#1C2A35';
+  const cCyan='#4FB8D6', cGreen='#4FBE8D', cAmber='#E3A94B', cRed='#DC6A5C', cText='#E7EEF3';
+
+  let done = {};
+  chartInit.workforce = function(){
+    if(done.workforce) return; done.workforce = true;
+    new Chart(document.getElementById('chartWorkforce'), {
+      type:'line',
+      data:{ labels:['2567','2568','2569','2570 (คาด)','2571 (คาด)','2572 (คาด)'],
+        datasets:[
+          {label:'กำลังคนจริง', data:[512,505,500,null,null,null], borderColor:cCyan, backgroundColor:'transparent', tension:.3, spanGaps:false},
+          {label:'คาดการณ์ (ไม่เสริมกำลัง)', data:[null,null,500,478,459,441], borderColor:cAmber, borderDash:[5,4], backgroundColor:'transparent', tension:.3}
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, padding:14 } } },
+        scales:{ x:{ grid:{ color:gridColor } }, y:{ grid:{ color:gridColor }, suggestedMin:400 } } }
+    });
+    new Chart(document.getElementById('chartWorkforceDept'), {
+      type:'bar',
+      data:{ labels:['75','BK','PK','NTS','SM'],
+        datasets:[{ label:'% ตำแหน่งเสี่ยง', data:[18,22,10,6,26], backgroundColor:[cAmber,cRed,cGreen,cGreen,cRed], borderRadius:3 }]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:gridColor }, ticks:{ callback:v=>v+'%' } } } }
+    });
+  };
+
+  chartInit.talent = function(){
+    if(done.talent) return; done.talent = true;
+    new Chart(document.getElementById('chartCompetency'), {
+      type:'bar',
+      data:{ labels:['ปฏิบัติการ','ซ่อมบำรุง','ความปลอดภัย','ครูฝึก','บริหาร'],
+        datasets:[{ label:'Competency Gap', data:[15,24,32,12,9], backgroundColor:cRed, borderRadius:3 }]},
+      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{ x:{ grid:{ color:gridColor }, ticks:{ callback:v=>v+'%' } }, y:{ grid:{ display:false } } } }
+    });
+    new Chart(document.getElementById('chartSuccessor'), {
+      type:'doughnut',
+      data:{ labels:['พร้อมแล้ว','กำลังพัฒนา','ยังไม่มี'],
+        datasets:[{ data:[3,4,1], backgroundColor:[cGreen,cAmber,cRed], borderColor:'#131E28', borderWidth:3 }]},
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'62%',
+        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, padding:14 } } } }
+    });
+  };
+
+  chartInit.learning = function(){
+    if(done.learning) return; done.learning = true;
+    new Chart(document.getElementById('chartLearning'), {
+      type:'doughnut',
+      data:{ labels:['เรียนจบแล้ว','กำลังเรียน','ยังไม่เริ่ม'],
+        datasets:[{ data:[38,44,18], backgroundColor:[cGreen,cCyan,'#2A3D4A'], borderColor:'#131E28', borderWidth:3 }]},
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'62%',
+        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, padding:14 } } } }
+    });
+  };
+
+  chartInit.performance = function(){
+    if(done.performance) return; done.performance = true;
+    new Chart(document.getElementById('chartPerformance'), {
+      type:'line',
+      data:{ labels:['Q1','Q2','Q3','Q4 (คาด)'],
+        datasets:[
+          { label:'คะแนนเฉลี่ย', data:[74,76,73,78], borderColor:cCyan, backgroundColor:'rgba(79,184,214,.12)', fill:true, tension:.3 },
+          { label:'เป้าหมาย', data:[80,80,80,80], borderColor:cText, borderDash:[4,4], backgroundColor:'transparent', pointRadius:0 }
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, padding:14 } } },
+        scales:{ x:{ grid:{ color:gridColor } }, y:{ grid:{ color:gridColor }, suggestedMin:60, suggestedMax:90 } } }
+    });
+    const depts = ['75','BK','PK','NTS','SM'];
+    const cats = ['กำลังคน','Competency','ความปลอดภัย','Engagement','ความเสี่ยงรวม'];
+    const levels = [
+      [1,2,0,1,1],[2,3,1,2,2],[0,1,0,0,0],[0,1,1,0,0],[3,2,2,3,4]
+    ];
+    let html = '<div class="heatmap"><div></div>';
+    cats.forEach(c=> html += `<div class="hhead">${c}</div>`);
+    depts.forEach((d,i)=>{
+      html += `<div class="hlabel">${d}</div>`;
+      levels[i].forEach(l=> html += `<div class="hcell h${l}">${['ต่ำมาก','ต่ำ','กลาง','สูง','วิกฤต'][l]}</div>`);
+    });
+    html += '</div>';
+    document.getElementById('heatmapWrap').innerHTML = html;
+  };
+
+  chartInit.leadership = function(){
+    if(done.leadership) return; done.leadership = true;
+    new Chart(document.getElementById('chartEngagement'), {
+      type:'bar',
+      data:{ labels:['75','BK','PK','NTS','SM'],
+        datasets:[{ label:'Engagement', data:[80,68,75,84,58], backgroundColor:[cGreen,cAmber,cGreen,cGreen,cRed], borderRadius:3 }]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:gridColor }, suggestedMax:100 } } }
+    });
+  };
 </script>
+
 </body>
 </html>
