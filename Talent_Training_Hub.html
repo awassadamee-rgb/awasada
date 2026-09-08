@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Talent & Training Hub — Mockup</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Sarabun:wght@400;500;600;700&display=swap');
+
+  :root{
+    --ink:#17242B; --muted:#5B6B72; --line:#E2E9EC;
+    --paper:#F5F8FA; --white:#FFFFFF;
+    --deep:#065A82; --teal:#1C7293; --midnight:#0F1B3D; --ice:#CFE8EF;
+    --amber:#C97A2B; --good:#2C8659; --red:#B84C3C;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Sarabun',sans-serif;color:var(--ink);background:var(--paper);}
+  .wrap{max-width:1220px;margin:0 auto;padding:28px 26px 60px;}
+
+  .top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+  h1{font-family:'Fraunces',serif;font-size:26px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em;}
+  .lead{color:var(--muted);font-size:13.5px;margin:0;}
+  .mock-tag{font-size:11.5px;font-weight:600;color:var(--teal);background:#E5F1F4;padding:5px 12px;border-radius:20px;}
+
+  .tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .tab{padding:10px 16px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;user-select:none;}
+  .tab.active{color:var(--midnight);border-bottom-color:var(--deep);}
+  .view{display:none;} .view.active{display:block;}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+  .kpi{background:var(--midnight);border-radius:14px;padding:18px 20px;color:var(--white);}
+  .kpi.alt{background:var(--deep);}
+  .kpi .num{font-family:'Fraunces',serif;font-size:32px;font-weight:600;}
+  .kpi .lbl{font-size:12.5px;color:var(--ice);margin-top:6px;}
+
+  .grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px;}
+  .card h2{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin:0 0 4px;}
+  .card .sub{font-size:12.5px;color:var(--muted);margin:0 0 16px;}
+
+  .filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .chip{padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:600;background:var(--white);border:1px solid var(--line);color:var(--muted);cursor:pointer;}
+  .chip.active{background:var(--midnight);color:var(--white);border-color:var(--midnight);}
+  .chip-add{border-style:dashed;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr.hidden{display:none;}
+
+  .status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;}
+  .status-pill.done{background:#E4F2EA;color:var(--good);}
+  .status-pill.progress{background:#FBF1DC;color:var(--amber);}
+
+  .score{font-weight:700;}
+  .score.high{color:var(--good);} .score.mid{color:var(--amber);} .score.low{color:var(--red);}
+
+  /* skill matrix */
+  .matrix-scroll{overflow-x:auto;}
+  .matrix-table td, .matrix-table th{text-align:center;}
+  .matrix-table td:first-child, .matrix-table th:first-child{text-align:left;white-space:normal;min-width:170px;}
+  .lvl-cell{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:30px;height:30px;border-radius:8px;color:var(--white);font-weight:700;font-size:12.5px;
+  }
+  .lvl-dash{color:var(--line);}
+  .dept-block{margin-bottom:26px;}
+  .dept-block:last-child{margin-bottom:0;}
+  .dept-block h3{font-family:'Fraunces',serif;font-size:15px;font-weight:600;margin:0 0 10px;color:var(--deep);}
+
+  /* talent cards */
+  .talent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .talent-card{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--white);}
+  .talent-card .name{font-weight:700;font-size:14.5px;margin-bottom:2px;}
+  .talent-card .role{font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .band{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;margin-bottom:10px;}
+  .band.ready{background:#E4F2EA;color:var(--good);}
+  .band.soon{background:#FBF1DC;color:var(--amber);}
+  .band.dev{background:#FBEDE4;color:var(--red);}
+  .rbar-track{width:100%;height:7px;background:var(--paper);border-radius:5px;overflow:hidden;margin:8px 0 6px;}
+  .rbar-fill{height:100%;border-radius:5px;}
+  .talent-card .note{font-size:12px;color:var(--muted);line-height:1.5;}
+
+  .link-note{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:2px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;}
+
+  /* ---- Settings (back office) ---- */
+  label{font-size:12.5px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;}
+  input[type=text], input[type=number]{
+    padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+    font-family:inherit;font-size:13px;background:var(--paper);color:var(--ink);
+  }
+  button{border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-primary{background:var(--midnight);color:var(--white);}
+  .btn-primary:hover{background:#182552;}
+  .btn-danger{background:transparent;color:var(--red);padding:3px 8px;font-size:11.5px;}
+
+  .level-path{display:flex;align-items:center;gap:0;margin-bottom:18px;flex-wrap:wrap;}
+  .level-node{
+    background:var(--paper);border:1px solid var(--line);border-radius:9px;
+    padding:8px 14px;font-size:13px;font-weight:600;color:var(--ink);position:relative;
+  }
+  .level-arrow{color:var(--muted);padding:0 8px;font-size:15px;}
+
+  .req-block{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;}
+  .req-block h4{font-size:14px;margin:0 0 3px;}
+  .req-block .req-sub{font-size:12px;color:var(--muted);margin:0 0 12px;}
+  .skill-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);}
+  .skill-row:first-of-type{border-top:none;}
+  .skill-row .sname{flex:1;font-size:13.5px;}
+  .skill-row .smin{width:90px;font-size:12.5px;color:var(--muted);}
+  .add-skill-row{display:flex;gap:8px;margin-top:10px;align-items:center;}
+  .add-skill-row input[type=text]{flex:1;}
+  .add-skill-row input[type=number]{width:80px;flex:none;}
+
+  /* course linkage */
+  select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px;background:var(--paper);color:var(--ink);}
+  .course-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);}
+  .course-row:first-of-type{border-top:none;}
+  .course-row .cname{flex:1.4;font-size:13.5px;}
+  .course-row .cskill{flex:1;}
+  .add-course-row{display:flex;gap:8px;margin-top:6px;align-items:center;}
+  .add-course-row input[type=text]{flex:1.4;}
+  .add-course-row select{flex:1;}
+  .link-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;}
+  .link-badge.has{background:#E4F2EA;color:var(--good);}
+  .link-badge.none{background:#FBEDE4;color:var(--red);}
+  .coverage-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .coverage-item{
+    border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12.5px;
+    display:flex;flex-direction:column;gap:4px;min-width:170px;
+  }
+  .coverage-item .cs-name{font-weight:600;}
+  .coverage-item .cs-courses{color:var(--muted);font-size:11.5px;line-height:1.4;}
+  .matrix-legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px;}
+  .req-skill-link{font-size:11px;color:var(--muted);margin-left:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div>
+      <h1>Talent & Training Hub</h1>
+      <p class="lead">เชื่อมประวัติการฝึกอบรม ↔ Skill Matrix ↔ Talent Pool ไว้ในที่เดียว</p>
+    </div>
+    <div class="mock-tag">ข้อมูลตัวอย่าง — Mockup</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="overview">ภาพรวม</div>
+    <div class="tab" data-view="settings">ตั้งค่าสกิล (หลังบ้าน)</div>
+    <div class="tab" data-view="matrix">Skill Matrix</div>
+    <div class="tab" data-view="training">ประวัติการฝึกอบรม</div>
+    <div class="tab" data-view="talent">Talent Pool</div>
+  </div>
+
+  <!-- ================= OVERVIEW ================= -->
+  <div class="view active" id="view-overview">
+    <div class="kpis">
+      <div class="kpi"><div class="num">128</div><div class="lbl">พนักงานที่มีข้อมูลครบ 3 ส่วน</div></div>
+      <div class="kpi alt"><div class="num">312</div><div class="lbl">รายการฝึกอบรมปีนี้</div></div>
+      <div class="kpi"><div class="num">76%</div><div class="lbl">อัตราสำเร็จหลักสูตรเฉลี่ย</div></div>
+      <div class="kpi alt"><div class="num">17</div><div class="lbl">คนอยู่ใน Talent Pool</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>แนวโน้มการฝึกอบรมรายเดือน</h2>
+        <p class="sub">จำนวนรายการฝึกอบรมที่สำเร็จ เทียบกับที่ยังไม่จบหลักสูตร</p>
+        <canvas id="trendChart" height="170"></canvas>
+      </div>
+      <div class="card">
+        <h2>สัดส่วน Talent Band</h2>
+        <p class="sub">จัดกลุ่มจากความพร้อมขึ้นระดับถัดไป</p>
+        <canvas id="bandChart" height="170"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h2>ความเชื่อมโยงของระบบ</h2>
+      <p class="sub">ที่มาของตัวเลขในแต่ละแท็บ</p>
+      <div class="link-note"><span class="dot"></span> Skill Matrix กำหนดเกณฑ์ขั้นต่ำของแต่ละตำแหน่ง — แต่ละแผนกตั้งค่าสกิลของตัวเองได้ในหน้า "ตั้งค่าสกิล"</div>
+      <div class="link-note"><span class="dot"></span> ทุกสกิลต้องผูกกับหลักสูตรฝึกอบรมอย่างน้อย 1 หลักสูตร ไม่งั้นจะไม่มีทางอัปเดตคะแนนพนักงานได้จริง</div>
+      <div class="link-note"><span class="dot"></span> ผลการฝึกอบรมอัปเดตคะแนนสกิลของพนักงานแต่ละคนโดยอัตโนมัติ</div>
+      <div class="link-note"><span class="dot"></span> Talent Pool คำนวณจากคะแนนสกิลปัจจุบัน เทียบกับเกณฑ์ในสกิลแมทริกซ์</div>
+    </div>
+  </div>
+
+  <!-- ================= SETTINGS (BACK OFFICE) ================= -->
+  <div class="view" id="view-settings">
+    <div class="card">
+      <h2>1. ตั้งค่าสกิลตามแผนก</h2>
+      <p class="sub">แต่ละแผนกกำหนดตำแหน่ง/เลเวล และสกิลของตัวเองได้อิสระ ไม่ต้องใช้ชุดสกิลร่วมกัน</p>
+      <div class="filters" id="deptTabs"></div>
+      <div id="deptBody"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. หลักสูตรฝึกอบรม — ผูกกับสกิล</h2>
+      <p class="sub">ทุกหลักสูตรต้องเลือกว่าพัฒนาสกิลไหน เพื่อให้ผลอบรมไหลไปอัปเดตคะแนนสกิลของพนักงานได้จริง</p>
+      <div id="courseCatalog"></div>
+      <div class="add-course-row">
+        <input type="text" placeholder="ชื่อหลักสูตรใหม่ เช่น การบริหารทีมข้ามสายงาน" id="newCourseName">
+        <select id="newCourseSkill"></select>
+        <button class="btn-primary" onclick="addCourse()">+ เพิ่มหลักสูตร</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. ความครอบคลุมของหลักสูตรต่อสกิล</h2>
+      <p class="sub">สกิลที่ยังไม่มีหลักสูตรรองรับ จะไม่มีทางอัปเดตคะแนนพนักงานได้จากการอบรม — ควรจัดหาหลักสูตรเพิ่ม</p>
+      <div class="coverage-wrap" id="skillCoverage"></div>
+    </div>
+  </div>
+
+  <!-- ================= SKILL MATRIX ================= -->
+  <div class="view" id="view-matrix">
+    <div class="card">
+      <h2>Skill Matrix ตามตำแหน่ง</h2>
+      <p class="sub">ตัวเลขในตารางคือระดับที่ต้องมี (1-5) ต่อสกิล — แต่ละแผนกอาจใช้สกิลคนละชุดกัน</p>
+      <div class="filters" id="matrixFilters"></div>
+      <div id="matrixBody"></div>
+    </div>
+  </div>
+
+  <!-- ================= TRAINING ================= -->
+  <div class="view" id="view-training">
+    <div class="card">
+      <h2>ประวัติการฝึกอบรม</h2>
+      <p class="sub">ผลการอบรมของพนักงาน ผูกกับสกิลใน Skill Matrix โดยตรง</p>
+      <div class="filters" id="trainingFilters"></div>
+      <table>
+        <thead><tr><th>พนักงาน</th><th>แผนก/สาขา</th><th>หลักสูตร</th><th>สกิลที่พัฒนา</th><th>วันที่จบ</th><th>คะแนน</th><th>สถานะ</th></tr></thead>
+        <tbody id="trainingBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ================= TALENT POOL ================= -->
+  <div class="view" id="view-talent">
+    <div class="card">
+      <h2>Talent Pool</h2>
+      <p class="sub">คำนวณความพร้อมจากผลฝึกอบรม เทียบกับเกณฑ์ Skill Matrix ของเลเวลถัดไป</p>
+      <div class="talent-grid" id="talentGrid"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================= DATA MODEL ================= */
+/* departments: { deptName: [ { name, reqs:[{skill,min}, ...] }, ... ordered by level ] } */
+let departments = {
+  'ตรวจสอบภายใน': [
+    { name:'หัวหน้าสำนักงานตรวจสอบภายใน', reqs:[
+      { skill:'ภาวะผู้นำ', min:4 }, { skill:'การบริหารความเสี่ยง', min:5 },
+      { skill:'ความเชี่ยวชาญเฉพาะด้าน', min:5 }, { skill:'การสื่อสาร', min:3 } ] },
+    { name:'ผู้อำนวยการสำนักตรวจสอบภายใน', reqs:[
+      { skill:'ภาวะผู้นำ', min:5 }, { skill:'การบริหารความเสี่ยง', min:5 },
+      { skill:'ความเชี่ยวชาญเฉพาะด้าน', min:5 }, { skill:'การสื่อสาร', min:4 } ] },
+  ],
+  'นิติการ': [
+    { name:'หัวหน้าแผนกนิติการ', reqs:[
+      { skill:'ภาวะผู้นำ', min:4 }, { skill:'การบริหารความเสี่ยง', min:4 },
+      { skill:'ความเชี่ยวชาญเฉพาะด้าน', min:5 }, { skill:'การสื่อสาร', min:4 } ] },
+    { name:'ผู้อำนวยการฝ่ายกฎหมายและกำกับดูแล', reqs:[
+      { skill:'ภาวะผู้นำ', min:5 }, { skill:'การบริหารความเสี่ยง', min:5 },
+      { skill:'ความเชี่ยวชาญเฉพาะด้าน', min:5 }, { skill:'การสื่อสาร', min:4 } ] },
+  ],
+  'ฝึกอบรมการบิน': [
+    { name:'ครูวิชาภาคพื้น ปฏิบัติหน้าที่', reqs:[
+      { skill:'เทคนิคการสอนภาคพื้น', min:3 }, { skill:'ความรู้ด้านความปลอดภัยการบิน', min:4 },
+      { skill:'การประเมินผลผู้เรียน', min:3 }, { skill:'การสื่อสาร', min:5 } ] },
+    { name:'ครูวิชาภาคพื้นอาวุโส', reqs:[
+      { skill:'เทคนิคการสอนภาคพื้น', min:5 }, { skill:'ความรู้ด้านความปลอดภัยการบิน', min:5 },
+      { skill:'การประเมินผลผู้เรียน', min:4 }, { skill:'การสื่อสาร', min:5 } ] },
+  ],
+  'ทรัพยากรบุคคล': [
+    { name:'ผู้เชี่ยวชาญด้านทรัพยากรบุคคล', reqs:[
+      { skill:'ภาวะผู้นำ', min:2 }, { skill:'การบริหารความเสี่ยง', min:2 },
+      { skill:'ความเชี่ยวชาญเฉพาะด้าน', min:4 }, { skill:'การสื่อสาร', min:3 } ] },
+    { name:'หัวหน้าสำนักงานทรัพยากรบุคคล', reqs:[
+      { skill:'ภาวะผู้นำ', min:5 }, { skill:'การบริหารความเสี่ยง', min:3 },
+      { skill:'ความเชี่ยวชาญเฉพาะด้าน', min:4 }, { skill:'การสื่อสาร', min:4 } ] },
+    { name:'ผู้อำนวยการฝ่ายทรัพยากรบุคคล', reqs:[
+      { skill:'ภาวะผู้นำ', min:5 }, { skill:'การบริหารความเสี่ยง', min:4 },
+      { skill:'ความเชี่ยวชาญเฉพาะด้าน', min:5 }, { skill:'การสื่อสาร', min:5 } ] },
+  ],
+};
+let currentSettingsDept = Object.keys(departments)[0];
+
+const employees = [
+  { name:'สมชาย ใจดี', branch:'BK', dept:'ตรวจสอบภายใน', pos:'หัวหน้าสำนักงานตรวจสอบภายใน', ratings:{ 'ภาวะผู้นำ':4, 'การบริหารความเสี่ยง':5, 'ความเชี่ยวชาญเฉพาะด้าน':5, 'การสื่อสาร':4 } },
+  { name:'ประเสริฐ บุญมี', branch:'75', dept:'นิติการ', pos:'หัวหน้าแผนกนิติการ', ratings:{ 'ภาวะผู้นำ':5, 'การบริหารความเสี่ยง':3, 'ความเชี่ยวชาญเฉพาะด้าน':3, 'การสื่อสาร':4 } },
+  { name:'พิมพ์ชนก แสงทอง', branch:'PK', dept:'ฝึกอบรมการบิน', pos:'ครูวิชาภาคพื้น ปฏิบัติหน้าที่', ratings:{ 'เทคนิคการสอนภาคพื้น':4, 'ความรู้ด้านความปลอดภัยการบิน':4, 'การประเมินผลผู้เรียน':3, 'การสื่อสาร':5 } },
+  { name:'สุนิสา ทองแท้', branch:'NTS', dept:'ทรัพยากรบุคคล', pos:'ผู้เชี่ยวชาญด้านทรัพยากรบุคคล', ratings:{ 'ภาวะผู้นำ':5, 'การบริหารความเสี่ยง':3, 'ความเชี่ยวชาญเฉพาะด้าน':4, 'การสื่อสาร':4 } },
+  { name:'อรวรรณ ชัยมงคล', branch:'SM', dept:'ทรัพยากรบุคคล', pos:'หัวหน้าสำนักงานทรัพยากรบุคคล', ratings:{ 'ภาวะผู้นำ':5, 'การบริหารความเสี่ยง':3, 'ความเชี่ยวชาญเฉพาะด้าน':4, 'การสื่อสาร':4 } },
+];
+
+const trainings = [
+  { emp:'สมชาย ใจดี', course:'Data Analytics for Auditors', skill:'ความเชี่ยวชาญเฉพาะด้าน', date:'2569-05-12', score:91, status:'done' },
+  { emp:'สมชาย ใจดี', course:'หลักสูตรผู้นำระดับสูง (Executive Leadership)', skill:'ภาวะผู้นำ', date:'', score:null, status:'progress' },
+  { emp:'ประเสริฐ บุญมี', course:'การบริหารความเสี่ยงองค์กร', skill:'การบริหารความเสี่ยง', date:'', score:null, status:'progress' },
+  { emp:'ประเสริฐ บุญมี', course:'ความเชี่ยวชาญด้านกฎหมายขั้นสูง', skill:'ความเชี่ยวชาญเฉพาะด้าน', date:'', score:null, status:'progress' },
+  { emp:'พิมพ์ชนก แสงทอง', course:'เทคนิคการสอนภาคพื้นขั้นสูง', skill:'เทคนิคการสอนภาคพื้น', date:'2569-04-20', score:90, status:'done' },
+  { emp:'พิมพ์ชนก แสงทอง', course:'มาตรฐานความปลอดภัยการบิน', skill:'ความรู้ด้านความปลอดภัยการบิน', date:'', score:null, status:'progress' },
+  { emp:'สุนิสา ทองแท้', course:'ภาวะผู้นำสำหรับหัวหน้างาน', skill:'ภาวะผู้นำ', date:'2569-03-14', score:88, status:'done' },
+  { emp:'สุนิสา ทองแท้', course:'การสื่อสารเชิงกลยุทธ์', skill:'การสื่อสาร', date:'2569-06-02', score:85, status:'done' },
+  { emp:'อรวรรณ ชัยมงคล', course:'การบริหารความเสี่ยงสำหรับ HR', skill:'การบริหารความเสี่ยง', date:'', score:null, status:'progress' },
+  { emp:'อรวรรณ ชัยมงคล', course:'ความเชี่ยวชาญเฉพาะด้าน HR ขั้นสูง', skill:'ความเชี่ยวชาญเฉพาะด้าน', date:'', score:null, status:'progress' },
+];
+
+/* courses: the catalog of training courses, each tied to exactly one skill.
+   This is the link between "ตั้งค่าสกิล" and "ประวัติการฝึกอบรม" — a skill with
+   no course here can never realistically get an employee's score updated. */
+let courses = [
+  { name:'ภาวะผู้นำสำหรับหัวหน้างาน', skill:'ภาวะผู้นำ' },
+  { name:'หลักสูตรผู้นำระดับสูง (Executive Leadership)', skill:'ภาวะผู้นำ' },
+  { name:'การบริหารความเสี่ยงองค์กร', skill:'การบริหารความเสี่ยง' },
+  { name:'การบริหารความเสี่ยงสำหรับ HR', skill:'การบริหารความเสี่ยง' },
+  { name:'Data Analytics for Auditors', skill:'ความเชี่ยวชาญเฉพาะด้าน' },
+  { name:'ความเชี่ยวชาญด้านกฎหมายขั้นสูง', skill:'ความเชี่ยวชาญเฉพาะด้าน' },
+  { name:'ความเชี่ยวชาญเฉพาะด้าน HR ขั้นสูง', skill:'ความเชี่ยวชาญเฉพาะด้าน' },
+  { name:'การสื่อสารเชิงกลยุทธ์', skill:'การสื่อสาร' },
+  { name:'เทคนิคการสอนภาคพื้นขั้นสูง', skill:'เทคนิคการสอนภาคพื้น' },
+  { name:'มาตรฐานความปลอดภัยการบิน', skill:'ความรู้ด้านความปลอดภัยการบิน' },
+  // สังเกตว่า "การประเมินผลผู้เรียน" ยังไม่มีหลักสูตรรองรับเลย — ตัวอย่างช่องว่างที่ควรจัดหาเพิ่ม
+];
+
+/* ================= TABS ================= */
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('view-' + t.dataset.view).classList.add('active');
+    if (t.dataset.view === 'matrix') renderMatrixFilters();
+    if (t.dataset.view === 'talent') renderTalent();
+    if (t.dataset.view === 'training') renderTrainingTable();
+    if (t.dataset.view === 'settings') { renderCourseCatalog(); renderSkillCoverage(); }
+  };
+});
+
+/* ================= OVERVIEW CHARTS ================= */
+new Chart(document.getElementById('trendChart'), {
+  type: 'bar',
+  data: {
+    labels: ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.'],
+    datasets: [
+      { label:'สำเร็จ', data:[18,22,27,24,31,29], backgroundColor:'#065A82', borderRadius:5, maxBarThickness:22 },
+      { label:'ยังไม่จบ', data:[6,5,8,4,7,5], backgroundColor:'#CFE8EF', borderRadius:5, maxBarThickness:22 },
+    ],
+  },
+  options: {
+    responsive:true,
+    plugins:{ legend:{ position:'bottom', labels:{ font:{family:"'Sarabun'", size:11.5}, boxWidth:12 } } },
+    scales:{
+      x:{ stacked:true, grid:{display:false}, ticks:{font:{family:"'Sarabun'"}} },
+      y:{ stacked:true, grid:{color:'#E2E9EC'}, ticks:{font:{family:"'Sarabun'"}} },
+    },
+  },
+});
+
+new Chart(document.getElementById('bandChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['พร้อมทันที','พร้อมใน 6-12 เดือน','ต้องพัฒนาเพิ่ม'],
+    datasets: [{ data:[17,34,77], backgroundColor:['#2C8659','#C97A2B','#B84C3C'], borderWidth:0 }],
+  },
+  options: {
+    responsive:true,
+    plugins:{ legend:{ position:'bottom', labels:{ font:{family:"'Sarabun'", size:11.5}, boxWidth:12 } } },
+    cutout:'62%',
+  },
+});
+
+/* ================= SETTINGS (BACK OFFICE) ================= */
+function renderDeptTabs(){
+  const wrap = document.getElementById('deptTabs');
+  wrap.innerHTML = '';
+  Object.keys(departments).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (key === currentSettingsDept ? ' active' : '');
+    chip.textContent = key;
+    chip.onclick = () => { currentSettingsDept = key; renderDeptTabs(); renderDeptBody(); };
+    wrap.appendChild(chip);
+  });
+  const addChip = document.createElement('div');
+  addChip.className = 'chip chip-add';
+  addChip.textContent = '+ เพิ่มแผนก';
+  addChip.onclick = () => {
+    const name = prompt('ชื่อแผนกใหม่:');
+    if (!name || departments[name]) return;
+    departments[name] = [{ name:'ตำแหน่งเริ่มต้น', reqs:[] }];
+    currentSettingsDept = name;
+    renderDeptTabs(); renderDeptBody();
+  };
+  wrap.appendChild(addChip);
+}
+
+function renderDeptBody(){
+  const list = departments[currentSettingsDept];
+  const body = document.getElementById('deptBody');
+  body.innerHTML = '';
+
+  const pathDiv = document.createElement('div');
+  pathDiv.className = 'level-path';
+  list.forEach((p, i) => {
+    if (i > 0) {
+      const arrow = document.createElement('span');
+      arrow.className = 'level-arrow'; arrow.textContent = '→';
+      pathDiv.appendChild(arrow);
+    }
+    const node = document.createElement('div');
+    node.className = 'level-node';
+    node.textContent = p.name;
+    pathDiv.appendChild(node);
+  });
+  const addLevelBtn = document.createElement('button');
+  addLevelBtn.className = 'btn-primary';
+  addLevelBtn.style.marginLeft = '10px';
+  addLevelBtn.textContent = '+ เพิ่มตำแหน่ง/เลเวล';
+  addLevelBtn.onclick = () => {
+    const name = prompt('ชื่อตำแหน่งใหม่ (ถัดจาก ' + list[list.length - 1].name + '):');
+    if (!name || list.some(p => p.name === name)) return;
+    list.push({ name, reqs:[] });
+    renderDeptBody();
+  };
+  pathDiv.appendChild(addLevelBtn);
+  body.appendChild(pathDiv);
+
+  list.forEach((p, pi) => {
+    const block = document.createElement('div');
+    block.className = 'req-block';
+    block.innerHTML = `<h4>${p.name}</h4><p class="req-sub">สกิลที่ต้องมีสำหรับตำแหน่งนี้ (แผนก "${currentSettingsDept}")</p>`;
+
+    p.reqs.forEach((r, ri) => {
+      const row = document.createElement('div');
+      row.className = 'skill-row';
+      const n = getSkillCourses(r.skill).length;
+      row.innerHTML = `
+        <div class="sname">${r.skill}</div>
+        <div class="smin">เกณฑ์ขั้นต่ำ ${r.min}/5</div>
+        <span class="link-badge ${n ? 'has' : 'none'}">${n ? n + ' หลักสูตรรองรับ' : 'ยังไม่มีหลักสูตร'}</span>
+        <button class="btn-danger">ลบ</button>
+      `;
+      row.querySelector('button').onclick = () => { p.reqs.splice(ri, 1); renderDeptBody(); renderCourseCatalog(); renderSkillCoverage(); };
+      block.appendChild(row);
+    });
+
+    const addRow = document.createElement('div');
+    addRow.className = 'add-skill-row';
+    addRow.innerHTML = `
+      <input type="text" placeholder="ชื่อสกิล เช่น ความรู้ด้านความปลอดภัยการบิน" class="skillNameInput">
+      <input type="number" min="1" max="5" value="3" class="skillMinInput">
+      <button class="btn-primary">+ เพิ่มสกิล</button>
+    `;
+    addRow.querySelector('button').onclick = () => {
+      const nameInput = addRow.querySelector('.skillNameInput');
+      const minInput = addRow.querySelector('.skillMinInput');
+      const name = nameInput.value.trim();
+      if (!name) return;
+      p.reqs.push({ skill: name, min: Math.max(1, Math.min(5, Number(minInput.value) || 3)) });
+      renderDeptBody();
+      renderCourseCatalog();
+      renderSkillCoverage();
+    };
+    block.appendChild(addRow);
+
+    if (list.length > 1) {
+      const removeLevelBtn = document.createElement('button');
+      removeLevelBtn.className = 'btn-danger';
+      removeLevelBtn.style.marginTop = '10px';
+      removeLevelBtn.textContent = 'ลบตำแหน่งนี้ออกจากแผนก';
+      removeLevelBtn.onclick = () => { list.splice(pi, 1); renderDeptBody(); renderCourseCatalog(); renderSkillCoverage(); };
+      block.appendChild(removeLevelBtn);
+    }
+    body.appendChild(block);
+  });
+}
+renderDeptTabs();
+renderDeptBody();
+
+/* ================= COURSE CATALOG (links skills → training courses) ================= */
+function allSkillsAcrossDepts(){
+  const set = [];
+  Object.values(departments).forEach(list => list.forEach(p => p.reqs.forEach(r => {
+    if (!set.includes(r.skill)) set.push(r.skill);
+  })));
+  return set;
+}
+function getSkillCourses(skill){
+  return courses.filter(c => c.skill === skill);
+}
+let courseIdSeq = 0;
+function renderCourseCatalog(){
+  const wrap = document.getElementById('courseCatalog');
+  const skillOptions = allSkillsAcrossDepts();
+  wrap.innerHTML = '';
+  courses.forEach((c, ci) => {
+    const orphan = !skillOptions.includes(c.skill);
+    const row = document.createElement('div');
+    row.className = 'course-row';
+    row.innerHTML = `
+      <div class="cname">${c.name}</div>
+      <div class="cskill">${c.skill} ${orphan ? '<span class="link-badge none" style="margin-left:6px;">ไม่พบสกิลนี้แล้ว</span>' : ''}</div>
+      <button class="btn-danger">ลบ</button>
+    `;
+    row.querySelector('button').onclick = () => { courses.splice(ci, 1); renderCourseCatalog(); renderSkillCoverage(); };
+    wrap.appendChild(row);
+  });
+
+  const sel = document.getElementById('newCourseSkill');
+  sel.innerHTML = skillOptions.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+function renderSkillCoverage(){
+  const wrap = document.getElementById('skillCoverage');
+  const skillOptions = allSkillsAcrossDepts();
+  wrap.innerHTML = skillOptions.map(s => {
+    const list = getSkillCourses(s);
+    const badgeClass = list.length ? 'has' : 'none';
+    const badgeText = list.length ? list.length + ' หลักสูตร' : 'ยังไม่มีหลักสูตร';
+    return `<div class="coverage-item">
+      <div class="cs-name">${s} <span class="link-badge ${badgeClass}" style="margin-left:4px;">${badgeText}</span></div>
+      <div class="cs-courses">${list.length ? list.map(c => c.name).join(' · ') : 'ต้องจัดหาหลักสูตรเพื่อพัฒนาสกิลนี้'}</div>
+    </div>`;
+  }).join('');
+}
+function addCourse(){
+  const nameInput = document.getElementById('newCourseName');
+  const skillSelect = document.getElementById('newCourseSkill');
+  const name = nameInput.value.trim();
+  if (!name || !skillSelect.value) return;
+  courses.push({ name, skill: skillSelect.value });
+  nameInput.value = '';
+  renderCourseCatalog();
+  renderSkillCoverage();
+}
+renderCourseCatalog();
+renderSkillCoverage();
+
+/* ================= SKILL MATRIX (per-department tables) ================= */
+function lvlColor(v){
+  if (v >= 5) return '#065A82';
+  if (v === 4) return '#1C7293';
+  if (v === 3) return '#4E9BAE';
+  if (v === 2) return '#8FC1CE';
+  return '#BEDCE3';
+}
+function buildDeptTable(deptName){
+  const list = departments[deptName];
+  const skillSet = [];
+  list.forEach(p => p.reqs.forEach(r => { if (!skillSet.includes(r.skill)) skillSet.push(r.skill); }));
+
+  let html = `<div class="dept-block"><h3>${deptName}</h3><div class="matrix-scroll"><table class="matrix-table">`;
+  html += '<thead><tr><th>ตำแหน่ง</th>' + skillSet.map(s => `<th>${s}</th>`).join('') + '</tr></thead><tbody>';
+  list.forEach(p => {
+    const map = {};
+    p.reqs.forEach(r => { map[r.skill] = r.min; });
+    const cells = skillSet.map(s => {
+      const v = map[s];
+      if (!v) return `<td><span class="lvl-dash">—</span></td>`;
+      return `<td><span class="lvl-cell" style="background:${lvlColor(v)};">${v}</span></td>`;
+    }).join('');
+    html += `<tr><td><strong>${p.name}</strong></td>${cells}</tr>`;
+  });
+  html += '</tbody></table></div>';
+  html += '<div class="matrix-legend">' + skillSet.map(s => {
+    const n = getSkillCourses(s).length;
+    return `<span class="link-badge ${n ? 'has' : 'none'}">${s}: ${n ? n + ' หลักสูตร' : 'ยังไม่มีหลักสูตร'}</span>`;
+  }).join('') + '</div>';
+  html += '</div>';
+  return html;
+}
+function renderMatrixBody(filterDept){
+  const body = document.getElementById('matrixBody');
+  const depts = filterDept === 'ทั้งหมด' ? Object.keys(departments) : [filterDept];
+  body.innerHTML = depts.map(d => buildDeptTable(d)).join('');
+}
+function renderMatrixFilters(){
+  const wrap = document.getElementById('matrixFilters');
+  const depts = ['ทั้งหมด', ...Object.keys(departments)];
+  wrap.innerHTML = depts.map((d,i) => `<div class="chip${i===0?' active':''}" data-dept="${d}">${d}</div>`).join('');
+  wrap.querySelectorAll('.chip').forEach(c => {
+    c.onclick = () => {
+      wrap.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      renderMatrixBody(c.dataset.dept);
+    };
+  });
+  renderMatrixBody('ทั้งหมด');
+}
+renderMatrixFilters();
+
+/* ================= TRAINING TABLE ================= */
+function renderTrainingFilters(){
+  const wrap = document.getElementById('trainingFilters');
+  const depts = ['ทั้งหมด', ...new Set(employees.map(e => e.dept))];
+  wrap.innerHTML = depts.map((d,i) => `<div class="chip${i===0?' active':''}" data-dept="${d}">${d}</div>`).join('');
+  wrap.querySelectorAll('.chip').forEach(c => {
+    c.onclick = () => {
+      wrap.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      filterTraining(c.dataset.dept);
+    };
+  });
+}
+renderTrainingFilters();
+
+function empInfo(name){ return employees.find(e => e.name === name); }
+
+function renderTrainingTable(){
+  const body = document.getElementById('trainingBody');
+  body.innerHTML = trainings.map(t => {
+    const emp = empInfo(t.emp);
+    const scoreClass = t.score === null ? '' : t.score >= 85 ? 'high' : t.score >= 70 ? 'mid' : 'low';
+    return `<tr data-dept="${emp.dept}">
+      <td>${t.emp}<div style="font-size:11px;color:var(--muted);">${emp.pos}</div></td>
+      <td>${emp.dept} · ${emp.branch}</td>
+      <td>${t.course}</td>
+      <td>${t.skill}</td>
+      <td>${t.date || '<span style="color:var(--muted);">—</span>'}</td>
+      <td>${t.score !== null ? `<span class="score ${scoreClass}">${t.score}</span>` : '<span style="color:var(--muted);">—</span>'}</td>
+      <td><span class="status-pill ${t.status === 'done' ? 'done' : 'progress'}">${t.status === 'done' ? 'สำเร็จ' : 'กำลังเรียน'}</span></td>
+    </tr>`;
+  }).join('');
+}
+renderTrainingTable();
+
+function filterTraining(dept){
+  document.querySelectorAll('#trainingBody tr').forEach(tr => {
+    tr.classList.toggle('hidden', dept !== 'ทั้งหมด' && tr.dataset.dept !== dept);
+  });
+}
+
+/* ================= TALENT POOL ================= */
+function nextPosition(currentPos, dept){
+  const list = departments[dept];
+  const idx = list.findIndex(p => p.name === currentPos);
+  if (idx === -1 || idx === list.length - 1) return null;
+  return list[idx + 1];
+}
+function renderTalent(){
+  const grid = document.getElementById('talentGrid');
+  const cards = employees.map(e => {
+    const target = nextPosition(e.pos, e.dept);
+    if (!target) return null;
+    const met = target.reqs.filter(r => (e.ratings[r.skill]||0) >= r.min).length;
+    const readiness = target.reqs.length ? Math.round((met/target.reqs.length)*100) : 100;
+    const gaps = target.reqs.filter(r => (e.ratings[r.skill]||0) < r.min).map(r => r.skill);
+    let band = 'dev', bandLabel = 'ต้องพัฒนาเพิ่ม';
+    if (readiness === 100) { band='ready'; bandLabel='พร้อมทันที'; }
+    else if (readiness >= 60) { band='soon'; bandLabel='พร้อมใน 6-12 เดือน'; }
+    const color = band==='ready' ? '#2C8659' : band==='soon' ? '#C97A2B' : '#B84C3C';
+    return `<div class="talent-card">
+      <div class="band ${band}">${bandLabel}</div>
+      <div class="name">${e.name}</div>
+      <div class="role">${e.pos} · ${e.dept} ${e.branch} → เป้าหมาย: ${target.name}</div>
+      <div class="rbar-track"><div class="rbar-fill" style="width:${readiness}%;background:${color};"></div></div>
+      <div style="font-size:12px;color:${color};font-weight:700;margin-bottom:8px;">${readiness}% พร้อม</div>
+      <div class="note">${gaps.length ? 'ยังขาด: ' + gaps.join(', ') : 'ผ่านเกณฑ์ครบทุกสกิลของตำแหน่งถัดไป'}</div>
+    </div>`;
+  }).filter(Boolean);
+  grid.innerHTML = cards.join('');
+}
+renderTalent();
+</script>
+</body>
+</html>
